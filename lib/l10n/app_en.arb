@@ -1,0 +1,10 @@
+{
+  "@@locale": "en",
+  "appTitle": "Okazu Diary",
+  "expense": "Expenses",
+  "income": "Income",
+  "iconSettings": "Icon Settings",
+  "statistics": "Statistics",
+  "settings": "Settings",
+  "recordSaved": "{type} recorded: {amount}"
+}

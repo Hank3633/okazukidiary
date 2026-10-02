@@ -1,0 +1,40 @@
+import 'package:flutter/material.dart';
+
+import '../models/category_item.dart';
+
+const incomeCategories = [
+  CategoryItem('assets/images/income/salary.png', '薪資', Color(0xFF4FC3F7)),
+  CategoryItem('assets/images/income/bonus.png', '獎金', Color(0xFFFFCA28)),
+  CategoryItem('assets/images/income/freelance.png', '接案', Color(0xFF7986CB)),
+  CategoryItem('assets/images/income/investment.png', '投資', Color(0xFF81C784)),
+  CategoryItem('assets/images/income/interest.png', '利息', Color(0xFF66BB6A)),
+  CategoryItem('assets/images/income/dividend.png', '股利', Color(0xFFFFB74D)),
+  CategoryItem('assets/images/income/allowance.png', '零用錢', Color(0xFFF48FB1)),
+  CategoryItem('assets/images/income/refund.png', '退款', Color(0xFF4DD0E1)),
+  CategoryItem('assets/images/income/sale.png', '物品出售', Color(0xFFFF7043)),
+  CategoryItem('assets/images/income/rent.png', '租金', Color(0xFFEF5350)),
+  CategoryItem('assets/images/income/gift.png', '禮金', Color(0xFFBA68C8)),
+  CategoryItem('assets/images/income/other.png', '其他', Color(0xFFA1887F)),
+];
+
+const expenseCategories = [
+  CategoryItem('assets/images/categories/0.png', '伙食', Color(0xFF4FC3F7)),
+  CategoryItem('assets/images/categories/1.png', '飲料', Color(0xFFFF7043)),
+  CategoryItem('assets/images/categories/2.png', '水果', Color(0xFF81C784)),
+  CategoryItem('assets/images/categories/3.png', '住宿', Color(0xFFEF5350)),
+  CategoryItem('assets/images/categories/4.png', '交通', Color(0xFF4DD0E1)),
+  CategoryItem('assets/images/categories/5.png', '衣服', Color(0xFF7986CB)),
+  CategoryItem('assets/images/categories/6.png', '電費', Color(0xFFFFCA28)),
+  CategoryItem('assets/images/categories/7.png', '水費', Color(0xFF4FC3F7)),
+  CategoryItem('assets/images/categories/8.png', '瓦斯費', Color(0xFFFF7043)),
+  CategoryItem('assets/images/categories/9.png', '家電', Color(0xFF66BB6A)),
+  CategoryItem('assets/images/categories/10.png', '雑貨', Color(0xFFFFB74D)),
+  CategoryItem('assets/images/categories/11.png', '外食', Color(0xFFBCAAA4)),
+  CategoryItem('assets/images/categories/12.png', '嗜好', Color(0xFFF48FB1)),
+  CategoryItem('assets/images/categories/13.png', '娛樂', Color(0xFFFFD54F)),
+  CategoryItem('assets/images/categories/14.png', '美容', Color(0xFFBA68C8)),
+  CategoryItem('assets/images/categories/15.png', '交際', Color(0xFFFFB74D)),
+  CategoryItem('assets/images/categories/16.png', '教育', Color(0xFF9CCC65)),
+  CategoryItem('assets/images/categories/17.png', '醫療', Color(0xFF80CBC4)),
+  CategoryItem('assets/images/categories/18.png', '保險', Color(0xFFA1887F)),
+];

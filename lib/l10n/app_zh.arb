@@ -1,0 +1,28 @@
+{
+  "@@locale": "zh",
+  "appTitle": "おかず日記",
+  "expense": "支出",
+  "income": "收入",
+  "iconSettings": "圖標設定",
+  "statistics": "收支統計",
+  "settings": "設定",
+  "recordSaved": "已記{type}：{amount} 元",
+  "@recordSaved": {
+    "placeholders": {
+      "type": {},
+      "amount": {}
+    }
+  },
+  "salary": "薪資",
+  "bonus": "獎金",
+  "freelance": "接案",
+  "investment": "投資",
+  "interest": "利息",
+  "dividend": "股利",
+  "allowance": "零用錢",
+  "refund": "退款",
+  "sale": "物品出售",
+  "rent": "租金",
+  "gift": "禮金",
+  "other": "其他"
+}

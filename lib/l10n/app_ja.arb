@@ -1,0 +1,10 @@
+{
+  "@@locale": "ja",
+  "appTitle": "おかず日記",
+  "expense": "支出",
+  "income": "収入",
+  "iconSettings": "アイコン設定",
+  "statistics": "収支統計",
+  "settings": "設定",
+  "recordSaved": "{type}を記録しました：{amount}円"
+}
