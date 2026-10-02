@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/category_icon.dart';
+
 import '../models/category_item.dart';
 import '../models/transaction_record.dart';
 
@@ -23,6 +25,26 @@ class RecordPage extends StatefulWidget {
 
 class _RecordPageState extends State<RecordPage> {
   int _selectedCategory = 0;
+  @override
+  void didUpdateWidget(covariant RecordPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final path = oldWidget.categories[_selectedCategory].id;
+    final index = widget.categories.indexWhere((c) => c.id == path);
+    _selectedCategory = index < 0 ? 0 : index;
+  }
+
+  DateTime _selectedDate = DateUtils.dateOnly(DateTime.now());
+
+  Future<void> _selectDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100, 12, 31),
+    );
+    if (!mounted || picked == null) return;
+    setState(() => _selectedDate = DateUtils.dateOnly(picked));
+  }
 
   // ---- 計算機狀態 ----
   String _display = '0';
@@ -110,12 +132,19 @@ class _RecordPageState extends State<RecordPage> {
             category: widget.categories[_selectedCategory],
             amount: amount,
             isIncome: widget.transactionName == '收入',
-            date: DateTime.now(),
+            date: _selectedDate,
           ),
         );
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('已記${widget.transactionName}：$_display 元')),
+          SnackBar(
+            content: Text(
+              '已記${widget.transactionName}・${widget.categories[_selectedCategory].label}：${_formatNumber(amount)} 元',
+            ),
+          ),
         );
+        _display = '0';
+        _waitingForSecond = false;
+        _justCalculated = false;
       }
     });
   }
@@ -213,11 +242,23 @@ class _RecordPageState extends State<RecordPage> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.access_time, size: 20, color: Colors.grey),
-          const SizedBox(width: 6),
-          Text(
-            '10/2',
-            style: TextStyle(fontSize: 15, color: Colors.grey.shade400),
+          InkWell(
+            onTap: _selectDate,
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.access_time, size: 20, color: Colors.grey),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${_selectedDate.month}/${_selectedDate.day}',
+                    style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
+                  ),
+                ],
+              ),
+            ),
           ),
           const Spacer(),
           Flexible(
@@ -257,7 +298,10 @@ class _RecordPageState extends State<RecordPage> {
         crossAxisCount: 5,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        childAspectRatio: 0.78,
+        mainAxisExtent:
+            widget.iconSize +
+            24 +
+            MediaQuery.textScalerOf(context).scale(11) * 2.4,
         mainAxisSpacing: 6,
         crossAxisSpacing: 6,
         children: List.generate(widget.categories.length, (i) {
@@ -285,11 +329,14 @@ class _RecordPageState extends State<RecordPage> {
                   SizedBox(
                     width: widget.iconSize,
                     height: widget.iconSize,
-                    child: Image.asset(c.imagePath, fit: BoxFit.contain),
+                    child: CategoryIcon(category: c, size: widget.iconSize),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     c.label,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 11, color: Colors.black87),
                   ),
                 ],

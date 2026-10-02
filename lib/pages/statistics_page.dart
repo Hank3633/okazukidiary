@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/category_item.dart';
 import '../models/transaction_record.dart';
 import '../widgets/pie_chart.dart';
+import '../widgets/category_icon.dart';
 
 class StatisticsPage extends StatefulWidget {
   const StatisticsPage({super.key, required this.records});
@@ -13,16 +14,48 @@ class StatisticsPage extends StatefulWidget {
 
 class _StatisticsPageState extends State<StatisticsPage> {
   bool _showIncome = false;
+  late DateTimeRange _dateRange;
+
+  DateTimeRange _currentMonth() {
+    final now = DateTime.now();
+    return DateTimeRange(
+      start: DateTime(now.year, now.month, 1),
+      end: DateTime(now.year, now.month + 1, 0),
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _dateRange = _currentMonth();
+  }
+
+  Future<void> _selectDateRange() async {
+    final picked = await showDateRangePicker(
+      context: context,
+      initialDateRange: _dateRange,
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100, 12, 31),
+    );
+    if (!mounted || picked == null) return;
+    setState(() => _dateRange = picked);
+  }
+
+  String _formatDate(DateTime date) =>
+      '${date.year}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}';
   @override
   Widget build(BuildContext context) {
-    final filtered = widget.records
-        .where((r) => r.isIncome == _showIncome)
-        .toList();
+    final filtered = widget.records.where((r) {
+      final day = DateUtils.dateOnly(r.date);
+      return r.isIncome == _showIncome &&
+          !day.isBefore(_dateRange.start) &&
+          !day.isAfter(_dateRange.end);
+    }).toList();
     final totals = <String, double>{};
     final items = <String, CategoryItem>{};
     for (final r in filtered) {
-      totals[r.category.label] = (totals[r.category.label] ?? 0) + r.amount;
-      items[r.category.label] = r.category;
+      totals[r.category.id] = (totals[r.category.id] ?? 0) + r.amount;
+      items[r.category.id] = r.category;
     }
     final rows = totals.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
@@ -42,18 +75,39 @@ class _StatisticsPageState extends State<StatisticsPage> {
               onSelectionChanged: (v) => setState(() => _showIncome = v.first),
             ),
           ),
-          Text(
-            '${DateTime.now().year}/${DateTime.now().month.toString().padLeft(2, '0')}/01～本月',
-            style: const TextStyle(fontSize: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: TextButton.icon(
+                    onPressed: _selectDateRange,
+                    icon: const Icon(Icons.date_range, size: 20),
+                    label: Text(
+                      '${_formatDate(_dateRange.start)} ～ ${_formatDate(_dateRange.end)}',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => setState(() => _dateRange = _currentMonth()),
+                  child: const Text('本月'),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
           SizedBox(
             height: 190,
             child: total == 0
-                ? const Center(child: Text('本月尚無記錄'))
+                ? const Center(child: Text('此日期區間尚無記錄'))
                 : CustomPaint(
                     size: const Size(190, 190),
-                    painter: PieChartPainter(rows.map((e) => e.value).toList()),
+                    painter: PieChartPainter(
+                      rows.map((e) => e.value).toList(),
+                      rows.map((e) => items[e.key]!.color).toList(),
+                    ),
                   ),
           ),
           Align(
@@ -73,8 +127,8 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 final c = items[e.key]!;
                 final p = e.value / total;
                 return ListTile(
-                  leading: Image.asset(c.imagePath, width: 36, height: 36),
-                  title: Text(c.label),
+                  leading: CategoryIcon(category: c),
+                  title: Text('${c.label}  ${(p * 100).toStringAsFixed(1)}%'),
                   subtitle: LinearProgressIndicator(
                     value: p,
                     color: c.color,

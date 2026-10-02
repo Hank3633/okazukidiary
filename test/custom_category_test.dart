@@ -1,0 +1,36 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:okazukidiary/models/category_item.dart';
+import 'package:okazukidiary/pages/category_editor.dart';
+
+void main() {
+  test('自訂分類共用圖片仍維持獨立識別，序列化保存顏色與名稱', () {
+    const first = CategoryItem(
+      'assets/images/categories/0.png',
+      '早餐',
+      Colors.orange,
+      customId: 'custom_1',
+    );
+    const second = CategoryItem(
+      'assets/images/categories/0.png',
+      '晚餐',
+      Colors.blue,
+      customId: 'custom_2',
+    );
+    expect(first.id, isNot(second.id));
+    final restored = CategoryItem.fromJson(first.toJson());
+    expect(restored.id, first.id);
+    expect(restored.label, first.label);
+      expect(restored.color.toARGB32(), first.color.toARGB32());
+    expect(restored.imagePath, first.imagePath);
+  });
+
+  testWidgets('空白名稱不能儲存自訂分類', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1600));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(const MaterialApp(home: CategoryEditor()));
+    await tester.tap(find.text('儲存分類'));
+    await tester.pump();
+    expect(find.text('請輸入分類名稱'), findsOneWidget);
+  });
+}
