@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Solution>
+	<Configurations>
+		<BuildType Name="Debug"/>
+		<BuildType Name="Profile"/>
+		<BuildType Name="Release"/>
+		<Platform Name="x64"/>
+	</Configurations>
+	<Project Path="ALL_BUILD.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="bbc094a0-0c07-3cf2-9c16-66ab9f45d605" DefaultStartup="true">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="flutter/flutter_wrapper_app.vcxproj"/>
+		<BuildDependency Project="flutter/flutter_wrapper_plugin.vcxproj"/>
+		<BuildDependency Project="runner/okazukidiary.vcxproj"/>
+	</Project>
+	<Project Path="INSTALL.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="b942bd42-65ed-3d57-af54-003dc1d93bcb">
+		<BuildDependency Project="ALL_BUILD.vcxproj"/>
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+	</Project>
+	<Project Path="ZERO_CHECK.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="5a51e133-de3d-34bb-b238-97add474bcd1"/>
+	<Project Path="flutter/flutter_assemble.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="8fd8d579-ed39-34e9-bf5c-01a08f662751">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+	</Project>
+	<Project Path="flutter/flutter_wrapper_app.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="e9806ff5-2233-3715-a082-d53717aa497c">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="flutter/flutter_assemble.vcxproj"/>
+	</Project>
+	<Project Path="flutter/flutter_wrapper_plugin.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="77550ef7-fc29-3ed5-8097-62e4e8287d8e">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="flutter/flutter_assemble.vcxproj"/>
+	</Project>
+	<Project Path="runner/okazukidiary.vcxproj" Type="8bc9ceb8-8b4a-11d0-8d11-00a0c91bc942" Id="bbdc6e6a-aa28-3917-8fab-593c77c9b4d9">
+		<BuildDependency Project="ZERO_CHECK.vcxproj"/>
+		<BuildDependency Project="flutter/flutter_assemble.vcxproj"/>
+		<BuildDependency Project="flutter/flutter_wrapper_app.vcxproj"/>
+	</Project>
+</Solution>

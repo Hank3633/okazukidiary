@@ -1,0 +1,9 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Users/cool3/AndroidStudioProjects/okazukidiary/build/windows/x64/cmake_install.cmake",
+		"C:/Users/cool3/AndroidStudioProjects/okazukidiary/build/windows/x64/flutter/cmake_install.cmake",
+		"C:/Users/cool3/AndroidStudioProjects/okazukidiary/build/windows/x64/runner/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
