@@ -101,21 +101,37 @@ class _RecordPageState extends State<RecordPage> {
   int _selectedCategory = 0; // 目前選中的分類圖示
 
   // ---- 計算機狀態 ----
-  String _display = '0';          // 畫面顯示
-  double? _firstOperand;          // 第一個運算元
-  String? _operator;              // 運算子 (+ - × ÷)
+  String _display = '0';          // 畫面顯示（算式）
   bool _waitingForSecond = false; // 是否等待輸入第二個運算元
+  bool _justCalculated = false;   // 是否剛按過 =
 
   void _onKey(String key) {
     setState(() {
       // 數字鍵 / 小數點 / 00
       if (RegExp(r'^[0-9.]$').hasMatch(key) || key == '00') {
-        if (_waitingForSecond) {
+        if (_justCalculated) {
+          // 按完 = 後再輸入數字，重新開始
           _display = (key == '00') ? '0' : key;
+          _justCalculated = false;
+          _waitingForSecond = false;
+          return;
+        }
+        if (_waitingForSecond) {
+          // 等待輸入第二個運算元：接在算式後面
+          if (key == '00') {
+            _display += '00';
+          } else if (key == '.') {
+            _display += '.';
+          } else {
+            _display += key;
+          }
           _waitingForSecond = false;
         } else {
           if (key == '.') {
-            if (!_display.contains('.')) _display += '.';
+            // 避免同一個數字有多個小數點
+            final parts = _display.split(RegExp(r'[+\-×÷]'));
+            final current = parts.last;
+            if (!current.contains('.')) _display += '.';
           } else if (key == '00') {
             if (_display != '0') _display += '00';
           } else {
@@ -129,35 +145,54 @@ class _RecordPageState extends State<RecordPage> {
         return;
       }
 
-      // 運算子
+      // 運算子：附加到算式後面
       if (key == '+' || key == '-' || key == '×' || key == '÷') {
-        if (_firstOperand == null || !_waitingForSecond) {
-          _firstOperand = double.tryParse(_display);
-          _operator = key;
+        if (_justCalculated) {
+          // 按完 = 後直接按運算子，把結果接續
+          _display = '$_display $key ';
           _waitingForSecond = true;
-        } else if (_operator != null) {
-          // 連續運算：先算前一個
-          _compute();
-          _operator = key;
+          _justCalculated = false;
+          return;
+        }
+        if (_waitingForSecond) {
+          // 連續按運算子：替換運算子
+          _display = '${_display.substring(0, _display.length - 3)} $key ';
+        } else {
+          // 第一次按運算子
+          _display = '$_display $key ';
           _waitingForSecond = true;
         }
         return;
       }
 
-      // 等號
+      // 等號：計算完整算式
       if (key == '=') {
-        _compute();
-        _operator = null;
-        _firstOperand = null;
-        _waitingForSecond = true;
+        if (_waitingForSecond) return; // 算式結尾是運算子，不計算
+        final result = _evaluateExpression(_display);
+        if (result == null) return;
+        _display = _formatNumber(result);
+        _waitingForSecond = false;
+        _justCalculated = true;
         return;
       }
 
       // 倒退
       if (key == 'back') {
-        if (!_waitingForSecond && _display.isNotEmpty) {
+        if (_justCalculated) {
+          // 按完 = 後不允許倒退
+          return;
+        }
+        if (_waitingForSecond) {
+          // 剛按完運算子：倒退刪掉運算子和空格
+          if (_display.length > 3) {
+            _display = _display.substring(0, _display.length - 3);
+          }
+          _waitingForSecond = false;
+          return;
+        }
+        if (_display.isNotEmpty) {
           _display = _display.substring(0, _display.length - 1);
-          if (_display.isEmpty || _display == '-') _display = '0';
+          if (_display.isEmpty) _display = '0';
         }
         return;
       }
@@ -171,35 +206,61 @@ class _RecordPageState extends State<RecordPage> {
     });
   }
 
-  /// 執行目前運算並把結果放到 _display
-  void _compute() {
-    if (_firstOperand == null || _operator == null) return;
-    final second = double.tryParse(_display) ?? 0;
-    double result;
-    switch (_operator) {
-      case '+':
-        result = _firstOperand! + second;
-        break;
-      case '-':
-        result = _firstOperand! - second;
-        break;
-      case '×':
-        result = _firstOperand! * second;
-        break;
-      case '÷':
-        result = second == 0 ? 0 : _firstOperand! / second;
-        break;
-      default:
-        return;
+  /// 解析並計算完整算式字串（例如 "12 × 3 + 4 ÷ 3"），乘除優先
+  double? _evaluateExpression(String expr) {
+    final tokens = expr.trim().split(RegExp(r'\s+'));
+    if (tokens.isEmpty) return null;
+
+    // 先把數字和運算子分開
+    final numbers = <double>[];
+    final operators = <String>[];
+    for (var i = 0; i < tokens.length; i++) {
+      if (i % 2 == 0) {
+        final n = double.tryParse(tokens[i]);
+        if (n == null) return null;
+        numbers.add(n);
+      } else {
+        operators.add(tokens[i]);
+      }
     }
-    // 整數不顯示小數點
-    if (result == result.roundToDouble()) {
-      _display = result.toInt().toString();
-    } else {
-      _display = result.toStringAsFixed(4).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
+    if (numbers.length == 1) return numbers.first; // 只有數字沒有運算子
+
+    // 第一輪：處理 × 和 ÷
+    var i = 0;
+    while (i < operators.length) {
+      if (operators[i] == '×') {
+        numbers[i] = numbers[i] * numbers[i + 1];
+        numbers.removeAt(i + 1);
+        operators.removeAt(i);
+      } else if (operators[i] == '÷') {
+        if (numbers[i + 1] == 0) {
+          numbers[i] = 0;
+        } else {
+          numbers[i] = numbers[i] / numbers[i + 1];
+        }
+        numbers.removeAt(i + 1);
+        operators.removeAt(i);
+      } else {
+        i++;
+      }
     }
-    _firstOperand = result;
-    _waitingForSecond = true;
+
+    // 第二輪：處理 + 和 −（由左到右）
+    var result = numbers[0];
+    for (var j = 0; j < operators.length; j++) {
+      if (operators[j] == '+') {
+        result += numbers[j + 1];
+      } else if (operators[j] == '-') {
+        result -= numbers[j + 1];
+      }
+    }
+    return result;
+  }
+
+  /// 格式化數字：整數不顯示小數點
+  String _formatNumber(double v) {
+    if (v == v.roundToDouble()) return v.toInt().toString();
+    return v.toStringAsFixed(4).replaceAll(RegExp(r'0+$'), '').replaceAll(RegExp(r'\.$'), '');
   }
 
   @override
@@ -219,41 +280,57 @@ class _RecordPageState extends State<RecordPage> {
                 ),
               ),
             ),
-            // 中間固定：日期金額列
-            _buildDateAmountRow(),
-            // 下方固定：數字鍵盤
-            _buildKeypad(),
+            // 下方固定：日期算式列 + 數字鍵盤（合併為同一卡片）
+            Container(
+              margin: const EdgeInsets.all(12),
+              clipBehavior: Clip.antiAlias,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Material(
+                color: Colors.white,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _buildDateAmountRow(),
+                    _buildKeypad(),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  /* ---------- 日期 + 金額列（在分類網格下方） ---------- */
+  /* ---------- 日期 + 算式列（與計算機同一卡片） ---------- */
   Widget _buildDateAmountRow() {
     final display = _display;
     return Container(
-      margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
-          const Icon(Icons.access_time, size: 28, color: Colors.grey),
-          const SizedBox(width: 8),
+          const Icon(Icons.access_time, size: 22, color: Colors.grey),
+          const SizedBox(width: 6),
           Text(
             '10/2',
             style: TextStyle(
-              fontSize: 22,
+              fontSize: 16,
               color: Colors.grey.shade400,
             ),
           ),
           const Spacer(),
-          Text(
-            display,
-            style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: Text(
+                display,
+                style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+            ),
           ),
         ],
       ),
@@ -324,108 +401,102 @@ class _RecordPageState extends State<RecordPage> {
 
   /* ---------- 數字鍵盤 ---------- */
   Widget _buildKeypad() {
-    return Container(
-      margin: const EdgeInsets.all(12),
+    return SizedBox(
       height: 280,
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
       child: Row(
         children: [
-          // 左邊 3 欄數字鍵
-          Expanded(
-            flex: 3,
-            child: Column(
-              children: [
-                _keyRow(['7', '8', '9']),
-                _keyRow(['4', '5', '6']),
-                _keyRow(['1', '2', '3']),
-                _keyRow(['0', '00', '.']),
-              ],
+            // 左邊 3 欄數字鍵
+            Expanded(
+              flex: 3,
+              child: Column(
+                children: [
+                  _keyRow(['7', '8', '9']),
+                  _keyRow(['4', '5', '6']),
+                  _keyRow(['1', '2', '3']),
+                  _keyRow(['0', '00', '.']),
+                ],
+              ),
             ),
-          ),
-          // 第 4 欄：運算子
-          Expanded(
-            flex: 1,
-            child: Column(
-              children: [
-                _funcKey('+', () => _onKey('+')),
-                _funcKey('-', () => _onKey('-')),
-                _funcKey('×', () => _onKey('×')),
-                _funcKey('÷', () => _onKey('÷')),
-              ],
+            // 第 4 欄：運算子
+            Expanded(
+              flex: 1,
+              child: Column(
+                children: [
+                  _funcKey('+', () => _onKey('+')),
+                  _funcKey('-', () => _onKey('-')),
+                  _funcKey('×', () => _onKey('×')),
+                  _funcKey('÷', () => _onKey('÷')),
+                ],
+              ),
             ),
-          ),
-          // 第 5 欄：AC / 倒退 / = / OK
-          Expanded(
-            flex: 1,
-            child: Column(
-              children: [
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => setState(() {
-                      _display = '0';
-                      _firstOperand = null;
-                      _operator = null;
-                      _waitingForSecond = false;
-                    }),
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+            // 第 5 欄：AC / 倒退 / = / OK
+            Expanded(
+              flex: 1,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => setState(() {
+                        _display = '0';
+                        _waitingForSecond = false;
+                        _justCalculated = false;
+                      }),
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                        ),
+                        child: const Text('AC', style: TextStyle(fontSize: 24)),
                       ),
-                      child: const Text('AC', style: TextStyle(fontSize: 24)),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _onKey('back'),
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _onKey('back'),
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                        ),
+                        child: Icon(Icons.backspace_outlined, size: 26, color: Colors.grey.shade700),
                       ),
-                      child: Icon(Icons.backspace_outlined, size: 26, color: Colors.grey.shade700),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _onKey('='),
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _onKey('='),
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
+                        ),
+                        child: const Text('=', style: TextStyle(fontSize: 28)),
                       ),
-                      child: const Text('=', style: TextStyle(fontSize: 28)),
                     ),
                   ),
-                ),
-                // OK 按鈕（與其他鍵同高）
-                Expanded(
-                  child: GestureDetector(
-                    onTap: () => _onKey('done'),
-                    child: Container(
-                      alignment: Alignment.center,
-                      color: const Color(0xFFB4E600),
-                      child: const Text(
-                        'OK',
-                        style: TextStyle(
-                          fontSize: 28,
-                          color: Colors.black87,
-                          fontWeight: FontWeight.bold,
+                  // OK 按鈕（與其他鍵同高）
+                  Expanded(
+                    child: InkWell(
+                      onTap: () => _onKey('done'),
+                      child: Container(
+                        alignment: Alignment.center,
+                        color: const Color(0xFFB4E600),
+                        child: const Text(
+                          'OK',
+                          style: TextStyle(
+                            fontSize: 28,
+                            color: Colors.black87,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
     );
   }
 
@@ -434,7 +505,7 @@ class _RecordPageState extends State<RecordPage> {
       child: Row(
         children: keys.map((k) {
           return Expanded(
-            child: GestureDetector(
+            child: InkWell(
               onTap: () => _onKey(k),
               child: Container(
                 alignment: Alignment.center,
@@ -458,7 +529,7 @@ class _RecordPageState extends State<RecordPage> {
 
   Widget _funcKey(String label, VoidCallback onTap) {
     return Expanded(
-      child: GestureDetector(
+      child: InkWell(
         onTap: onTap,
         child: Container(
           alignment: Alignment.center,
