@@ -1,28 +1,37 @@
-# Firebase build and deployment files
-/firebase-debug.log
-/firebase-debug.*.log
-.firebaserc
+# Flutter/Dart build artifacts
+.dart_tool/
+.build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+flutter_*.png
+generated_plugin_registrant.dart
 
-# Firebase Hosting
-/firebase.json
-*.cache
-hosting/.cache
+# Platform ephemeral build folders (regenerated on flutter run)
+**/ephemeral/
+windows/flutter/
+android/.gradle/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+linux/flutter/ephemeral/
+macos/Flutter/ephemeral/
 
-# Firebase Functions
-/functions/node_modules/
-/functions/.env
-/functions/package-lock.json
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
 
-# Firebase Emulators
-/firebase-*.zip
-/.firebase/
-/emulator-ui/
+# OS
+.DS_Store
+Thumbs.db
 
-# Logs
+# Logs & env
 *.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Environment files (local configs)
-/.env.*
+.env
+.env.*
