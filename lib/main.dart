@@ -32,19 +32,24 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
-
-  static const _pages = [
-    RecordPage(),
-    PlaceholderPage(title: '收入', icon: Icons.savings),
-    PlaceholderPage(title: '圖標設定', icon: Icons.apps),
-    PlaceholderPage(title: '收支統計', icon: Icons.bar_chart),
-    PlaceholderPage(title: '設定', icon: Icons.settings),
-  ];
+  double _categoryIconSize = 36;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: _pages),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          RecordPage(iconSize: _categoryIconSize, categories: expenseCategories, transactionName: '支出'),
+          RecordPage(iconSize: _categoryIconSize, categories: incomeCategories, transactionName: '收入'),
+          IconSizeSettingsPage(
+            selectedSize: _categoryIconSize,
+            onSelected: (size) => setState(() => _categoryIconSize = size),
+          ),
+          const PlaceholderPage(title: '收支統計', icon: Icons.bar_chart),
+          const PlaceholderPage(title: '設定', icon: Icons.settings),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (i) => setState(() => _currentIndex = i),
@@ -87,11 +92,58 @@ class PlaceholderPage extends StatelessWidget {
   }
 }
 
+class IconSizeSettingsPage extends StatelessWidget {
+  const IconSizeSettingsPage({
+    super.key,
+    required this.selectedSize,
+    required this.onSelected,
+  });
+
+  final double selectedSize;
+  final ValueChanged<double> onSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    const sizes = [28.0, 32.0, 36.0];
+    return Scaffold(
+      appBar: AppBar(title: const Text('圖標設定'), centerTitle: true),
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('分類圖示尺寸', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            const Text('可直接切換並回到「記帳」頁查看效果。'),
+            const SizedBox(height: 20),
+            Wrap(
+              spacing: 12,
+              children: sizes
+                  .map(
+                    (size) => ChoiceChip(
+                      label: Text('${size.toInt()} px'),
+                      selected: selectedSize == size,
+                      onSelected: (_) => onSelected(size),
+                    ),
+                  )
+                  .toList(),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /* ============================================================
  * 記帳頁
  * ============================================================ */
 class RecordPage extends StatefulWidget {
-  const RecordPage({super.key});
+  const RecordPage({super.key, required this.iconSize, required this.categories, required this.transactionName});
+
+  final double iconSize;
+  final List<_CategoryItem> categories;
+  final String transactionName;
 
   @override
   State<RecordPage> createState() => _RecordPageState();
@@ -180,7 +232,7 @@ class _RecordPageState extends State<RecordPage> {
 
       if (key == 'done') {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('已記帳：$_display 元')),
+          SnackBar(content: Text('已記${widget.transactionName}：$_display 元')),
         );
       }
     });
@@ -304,26 +356,25 @@ class _RecordPageState extends State<RecordPage> {
 
   Widget _buildCategoryGrid() {
     final categories = <_CategoryItem>[
-      _CategoryItem(Icons.restaurant, '食費', const Color(0xFF4FC3F7)),
-      _CategoryItem(Icons.wine_bar, '嗜好品', const Color(0xFFF48FB1)),
-      _CategoryItem(Icons.lunch_dining, '外食費', const Color(0xFFBCAAA4)),
-      _CategoryItem(Icons.home, '住宿', const Color(0xFFEF5350)),
-      _CategoryItem(Icons.bed, '家電', const Color(0xFF66BB6A)),
-      _CategoryItem(Icons.card_giftcard, '雑貨', const Color(0xFFFFB74D)),
-      _CategoryItem(Icons.bolt, '電費', const Color(0xFFFFCA28)),
-      _CategoryItem(Icons.checkroom, '衣服', const Color(0xFF7986CB)),
-      _CategoryItem(Icons.medical_services, '醫療', const Color(0xFF80CBC4)),
-      _CategoryItem(Icons.sentiment_satisfied, '美容', const Color(0xFFBA68C8)),
-      _CategoryItem(Icons.school, '教育', const Color(0xFF9CCC65)),
-      _CategoryItem(Icons.sports_baseball, '娛樂', const Color(0xFFFFD54F)),
-      _CategoryItem(Icons.people, '交際', const Color(0xFFFFB74D)),
-      _CategoryItem(Icons.tram, '交通', const Color(0xFF4DD0E1)),
-      _CategoryItem(Icons.add_circle, '保険', const Color(0xFFA1887F)),
-      _CategoryItem(Icons.school, '教育', const Color(0xFF9CCC65)),
-      _CategoryItem(Icons.sports_baseball, '娛樂', const Color(0xFFFFD54F)),
-      _CategoryItem(Icons.people, '交際', const Color(0xFFFFB74D)),
-      _CategoryItem(Icons.tram, '交通', const Color(0xFF4DD0E1)),
-      _CategoryItem(Icons.add_circle, '保険', const Color(0xFFA1887F)),
+      _CategoryItem(0, '伙食', const Color(0xFF4FC3F7)),
+      _CategoryItem(1, '飲料', const Color(0xFFFF7043)),
+      _CategoryItem(2, '水果', const Color(0xFF81C784)),
+      _CategoryItem(3, '住宿', const Color(0xFFEF5350)),
+      _CategoryItem(4, '交通', const Color(0xFF4DD0E1)),
+      _CategoryItem(5, '衣服', const Color(0xFF7986CB)),
+      _CategoryItem(6, '電費', const Color(0xFFFFCA28)),
+      _CategoryItem(7, '水費', const Color(0xFF4FC3F7)),
+      _CategoryItem(8, '瓦斯費', const Color(0xFFFF7043)),
+      _CategoryItem(9, '家電', const Color(0xFF66BB6A)),
+      _CategoryItem(10, '雑貨', const Color(0xFFFFB74D)),
+      _CategoryItem(11, '外食', const Color(0xFFBCAAA4)),
+      _CategoryItem(12, '嗜好', const Color(0xFFF48FB1)),
+      _CategoryItem(13, '娛樂', const Color(0xFFFFD54F)),
+      _CategoryItem(14, '美容', const Color(0xFFBA68C8)),
+      _CategoryItem(15, '交際', const Color(0xFFFFB74D)),
+      _CategoryItem(16, '教育', const Color(0xFF9CCC65)),
+      _CategoryItem(17, '醫療', const Color(0xFF80CBC4)),
+      _CategoryItem(18, '保險', const Color(0xFFA1887F)),
     ];
 
     return Container(
@@ -344,11 +395,11 @@ class _RecordPageState extends State<RecordPage> {
         crossAxisCount: 5,
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        childAspectRatio: 0.95,
+        childAspectRatio: 0.78,
         mainAxisSpacing: 6,
         crossAxisSpacing: 6,
-        children: List.generate(categories.length, (i) {
-          final c = categories[i];
+        children: List.generate(widget.categories.length, (i) {
+          final c = widget.categories[i];
           final selected = i == _selectedCategory;
           return GestureDetector(
             onTap: () => setState(() => _selectedCategory = i),
@@ -365,7 +416,14 @@ class _RecordPageState extends State<RecordPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(c.icon, size: 28, color: c.color),
+                  SizedBox(
+                    width: widget.iconSize,
+                    height: widget.iconSize,
+                    child: Image.asset(
+                      c.imagePath,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
                   const SizedBox(height: 4),
                   Text(c.label, style: const TextStyle(fontSize: 11, color: Colors.black87)),
                 ],
@@ -562,8 +620,40 @@ class _RecordPageState extends State<RecordPage> {
 }
 
 class _CategoryItem {
-  final IconData icon;
+  final Object iconSource;
   final String label;
   final Color color;
-  _CategoryItem(this.icon, this.label, this.color);
+  const _CategoryItem(this.iconSource, this.label, this.color);
+
+  String get imagePath => iconSource is int
+      ? 'assets/images/categories/$iconSource.png'
+      : iconSource as String;
 }
+
+const incomeCategories = [
+  _CategoryItem('assets/images/income/salary.png', '薪資', Color(0xFF4FC3F7)),
+  _CategoryItem('assets/images/income/bonus.png', '獎金', Color(0xFFFFCA28)),
+  _CategoryItem('assets/images/income/freelance.png', '接案', Color(0xFF7986CB)),
+  _CategoryItem('assets/images/income/investment.png', '投資', Color(0xFF81C784)),
+  _CategoryItem('assets/images/income/interest.png', '利息', Color(0xFF66BB6A)),
+  _CategoryItem('assets/images/income/dividend.png', '股利', Color(0xFFFFB74D)),
+  _CategoryItem('assets/images/income/allowance.png', '零用錢', Color(0xFFF48FB1)),
+  _CategoryItem('assets/images/income/refund.png', '退款', Color(0xFF4DD0E1)),
+  _CategoryItem('assets/images/income/sale.png', '物品出售', Color(0xFFFF7043)),
+  _CategoryItem('assets/images/income/rent.png', '租金', Color(0xFFEF5350)),
+  _CategoryItem('assets/images/income/gift.png', '禮金', Color(0xFFBA68C8)),
+  _CategoryItem('assets/images/income/other.png', '其他', Color(0xFFA1887F)),
+];
+
+const expenseCategories = [
+  _CategoryItem(0, '伙食', Color(0xFF4FC3F7)), _CategoryItem(1, '飲料', Color(0xFFFF7043)),
+  _CategoryItem(2, '水果', Color(0xFF81C784)), _CategoryItem(3, '住宿', Color(0xFFEF5350)),
+  _CategoryItem(4, '交通', Color(0xFF4DD0E1)), _CategoryItem(5, '衣服', Color(0xFF7986CB)),
+  _CategoryItem(6, '電費', Color(0xFFFFCA28)), _CategoryItem(7, '水費', Color(0xFF4FC3F7)),
+  _CategoryItem(8, '瓦斯費', Color(0xFFFF7043)), _CategoryItem(9, '家電', Color(0xFF66BB6A)),
+  _CategoryItem(10, '雑貨', Color(0xFFFFB74D)), _CategoryItem(11, '外食', Color(0xFFBCAAA4)),
+  _CategoryItem(12, '嗜好', Color(0xFFF48FB1)), _CategoryItem(13, '娛樂', Color(0xFFFFD54F)),
+  _CategoryItem(14, '美容', Color(0xFFBA68C8)), _CategoryItem(15, '交際', Color(0xFFFFB74D)),
+  _CategoryItem(16, '教育', Color(0xFF9CCC65)), _CategoryItem(17, '醫療', Color(0xFF80CBC4)),
+  _CategoryItem(18, '保險', Color(0xFFA1887F)),
+];
