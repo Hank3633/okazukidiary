@@ -104,8 +104,14 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In zh_TW, this message translates to:
-  /// **'おかず日記'**
+  /// **'小芽記帳本'**
   String get appTitle;
+
+  /// No description provided for @record.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'記帳'**
+  String get record;
 
   /// No description provided for @expense.
   ///
@@ -214,6 +220,228 @@ abstract class AppLocalizations {
   /// In zh_TW, this message translates to:
   /// **'其他'**
   String get other;
+
+  /// No description provided for @keepOneCategory.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'至少保留一個分類'**
+  String get keepOneCategory;
+
+  /// No description provided for @addCategory.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'新增分類'**
+  String get addCategory;
+
+  /// No description provided for @editCategory.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'編輯分類'**
+  String get editCategory;
+
+  /// No description provided for @categoryName.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'分類名稱'**
+  String get categoryName;
+
+  /// No description provided for @importImage.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'匯入圖片'**
+  String get importImage;
+
+  /// No description provided for @selectBuiltInIcon.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'選擇內建圖示'**
+  String get selectBuiltInIcon;
+
+  /// No description provided for @statisticsColor.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'統計顏色'**
+  String get statisticsColor;
+
+  /// No description provided for @saving.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'儲存中…'**
+  String get saving;
+
+  /// No description provided for @saveCategory.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'儲存分類'**
+  String get saveCategory;
+
+  /// No description provided for @imageReadFailed.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'無法讀取圖片，請選擇有效的圖片檔案。'**
+  String get imageReadFailed;
+
+  /// No description provided for @imageSaveFailed.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'儲存圖片失敗，請重試。'**
+  String get imageSaveFailed;
+
+  /// No description provided for @categoryNameExists.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'分類名稱已存在，請使用不同名稱'**
+  String get categoryNameExists;
+
+  /// No description provided for @deleteCategoryTitle.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'刪除「{name}」？'**
+  String deleteCategoryTitle(Object name);
+
+  /// No description provided for @deleteCategoryMessage.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'此分類會從圖標清單移除，既有記錄與統計仍會保留。'**
+  String get deleteCategoryMessage;
+
+  /// No description provided for @cancel.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'取消'**
+  String get cancel;
+
+  /// No description provided for @delete.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'刪除'**
+  String get delete;
+
+  /// No description provided for @expenseIcons.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'支出圖標'**
+  String get expenseIcons;
+
+  /// No description provided for @incomeIcons.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'收入圖標'**
+  String get incomeIcons;
+
+  /// No description provided for @iconSize.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'分類圖示尺寸'**
+  String get iconSize;
+
+  /// No description provided for @iconSizeHint.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'可直接切換並回到「記帳」頁查看效果。'**
+  String get iconSizeHint;
+
+  /// No description provided for @showAndReorderHint.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'勾選顯示分類；拖曳右側把手調整順序。'**
+  String get showAndReorderHint;
+
+  /// No description provided for @dragToReorder.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'拖曳排序'**
+  String get dragToReorder;
+
+  /// No description provided for @thisMonth.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'本月'**
+  String get thisMonth;
+
+  /// No description provided for @noRecords.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'此日期區間尚無記錄'**
+  String get noRecords;
+
+  /// No description provided for @total.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'總計：{amount}'**
+  String total(Object amount);
+
+  /// No description provided for @recordManagement.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'帳目管理'**
+  String get recordManagement;
+
+  /// No description provided for @searchRecords.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'搜尋分類'**
+  String get searchRecords;
+
+  /// No description provided for @all.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'全部'**
+  String get all;
+
+  /// No description provided for @allDates.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'全部日期'**
+  String get allDates;
+
+  /// No description provided for @editRecord.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'編輯帳目'**
+  String get editRecord;
+
+  /// No description provided for @deleteRecord.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'刪除帳目'**
+  String get deleteRecord;
+
+  /// No description provided for @deleteRecordMessage.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'確定要刪除這筆帳目嗎？此操作無法復原。'**
+  String get deleteRecordMessage;
+
+  /// No description provided for @amount.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'金額'**
+  String get amount;
+
+  /// No description provided for @date.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'日期'**
+  String get date;
+
+  /// No description provided for @category.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'分類'**
+  String get category;
+
+  /// No description provided for @save.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'儲存'**
+  String get save;
+
+  /// No description provided for @noMatchingRecords.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'沒有符合篩選條件的帳目'**
+  String get noMatchingRecords;
 }
 
 class _AppLocalizationsDelegate

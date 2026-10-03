@@ -1,11 +1,11 @@
 {
-    "name": "okazukidiary",
-    "short_name": "okazukidiary",
+    "name": "小芽記帳本",
+    "short_name": "小芽記帳本",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F4FFF7",
+    "theme_color": "#72B84A",
+    "description": "小芽記帳本，輕鬆記錄每一筆收支。",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

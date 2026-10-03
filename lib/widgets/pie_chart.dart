@@ -22,6 +22,16 @@ class PieChartPainter extends CustomPainter {
         true,
         Paint()..color = colors[i % colors.length],
       );
+      canvas.drawArc(
+        rect.deflate(8),
+        start,
+        sweep,
+        true,
+        Paint()
+          ..color = Colors.white.withValues(alpha: 0.9)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2.5,
+      );
       // 小區塊的占比保留在列表，避免圖上的文字互相重疊。
       if (values[i] / total >= 0.05) {
         final angle = start + sweep / 2;
@@ -47,18 +57,6 @@ class PieChartPainter extends CustomPainter {
       start += sweep;
     }
     canvas.drawCircle(center, 34, Paint()..color = Colors.white);
-    final text = TextPainter(
-      text: const TextSpan(
-        text: '%',
-        style: TextStyle(
-          fontSize: 28,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    )..layout();
-    text.paint(canvas, center - Offset(text.width / 2, text.height / 2));
   }
 
   @override

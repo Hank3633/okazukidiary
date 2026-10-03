@@ -1,4 +1,4 @@
-# okazukidiary
+# 小芽記帳本
 
 A new Flutter project.
 

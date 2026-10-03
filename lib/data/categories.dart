@@ -18,7 +18,7 @@ const incomeCategories = [
 ];
 
 const expenseCategories = [
-  CategoryItem('assets/images/categories/0.png', '伙食', Color(0xFF4FC3F7)),
+  CategoryItem('assets/images/categories/0.png', '餐點', Color(0xFF4FC3F7)),
   CategoryItem('assets/images/categories/1.png', '飲料', Color(0xFFFF7043)),
   CategoryItem('assets/images/categories/2.png', '水果', Color(0xFF81C784)),
   CategoryItem('assets/images/categories/3.png', '住宿', Color(0xFFEF5350)),
@@ -29,7 +29,7 @@ const expenseCategories = [
   CategoryItem('assets/images/categories/8.png', '瓦斯費', Color(0xFFFF7043)),
   CategoryItem('assets/images/categories/9.png', '家電', Color(0xFF66BB6A)),
   CategoryItem('assets/images/categories/10.png', '雑貨', Color(0xFFFFB74D)),
-  CategoryItem('assets/images/categories/11.png', '外食', Color(0xFFBCAAA4)),
+  CategoryItem('assets/images/categories/11.png', '餐廳', Color(0xFFBCAAA4)),
   CategoryItem('assets/images/categories/12.png', '嗜好', Color(0xFFF48FB1)),
   CategoryItem('assets/images/categories/13.png', '娛樂', Color(0xFFFFD54F)),
   CategoryItem('assets/images/categories/14.png', '美容', Color(0xFFBA68C8)),
@@ -37,4 +37,20 @@ const expenseCategories = [
   CategoryItem('assets/images/categories/16.png', '教育', Color(0xFF9CCC65)),
   CategoryItem('assets/images/categories/17.png', '醫療', Color(0xFF80CBC4)),
   CategoryItem('assets/images/categories/18.png', '保險', Color(0xFFA1887F)),
+  CategoryItem('assets/images/categories/20.png', '電話費', Color(0xFFEF5350)),
+  CategoryItem('assets/images/categories/21.png', '網路費', Color(0xFF42A5F5)),
+  CategoryItem('assets/images/categories/22.png', '管理費', Color(0xFFFFB74D)),
+  CategoryItem('assets/images/categories/23.png', '修繕費', Color(0xFF90A4AE)),
+  CategoryItem('assets/images/categories/24.png', '停車費', Color(0xFF5C6BC0)),
+  CategoryItem('assets/images/categories/25.png', '加油費', Color(0xFF26A69A)),
+  CategoryItem('assets/images/categories/26.png', '保養費', Color(0xFF78909C)),
+  CategoryItem('assets/images/categories/27.png', '寵物', Color(0xFF8D6E63)),
+  CategoryItem('assets/images/categories/28.png', '育兒', Color(0xFFFFCA28)),
+  CategoryItem('assets/images/categories/29.png', '理財', Color(0xFF66BB6A)),
+  CategoryItem('assets/images/categories/30.png', '禮金', Color(0xFFF06292)),
+  CategoryItem('assets/images/categories/31.png', '捐款', Color(0xFFEC407A)),
+  CategoryItem('assets/images/categories/32.png', '其他', Color(0xFFA1887F)),
+  CategoryItem('assets/images/categories/33.png', '稅金', Color(0xFFFFB74D)),
+  CategoryItem('assets/images/categories/34.png', '罰款', Color(0xFFEF5350)),
+  CategoryItem('assets/images/categories/35.png', '菸酒', Color(0xFF8D6E63)),
 ];

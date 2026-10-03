@@ -5,12 +5,14 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data/categories.dart';
+import 'l10n/app_localizations.dart';
 import 'models/category_item.dart';
 import 'models/transaction_record.dart';
 import 'pages/record_page.dart';
 import 'pages/statistics_page.dart';
 import 'pages/icon_settings_page.dart';
-import 'pages/placeholder_page.dart';
+import 'pages/record_management_page.dart';
+import 'utils/category_reorder.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -44,7 +46,7 @@ class _MainShellState extends State<MainShell> {
   void _reorder(bool income, int oldIndex, int newIndex) {
     setState(() {
       final categories = income ? _incomeOrder : _expenseOrder;
-      categories.insert(newIndex, categories.removeAt(oldIndex));
+      reorderCategoryList(categories, oldIndex, newIndex);
     });
     _savePreferences();
   }
@@ -56,6 +58,22 @@ class _MainShellState extends State<MainShell> {
           .map(
             (item) =>
                 CategoryItem.fromJson(Map<String, dynamic>.from(item as Map)),
+          )
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  List<TransactionRecord> _readRecords(SharedPreferences prefs) {
+    try {
+      final list =
+          jsonDecode(prefs.getString('transaction_records') ?? '[]') as List;
+      return list
+          .map(
+            (item) => TransactionRecord.fromJson(
+              Map<String, dynamic>.from(item as Map),
+            ),
           )
           .toList();
     } catch (_) {
@@ -81,8 +99,9 @@ class _MainShellState extends State<MainShell> {
     final hidden = income ? _hiddenIncome : _hiddenExpenses;
     if (!hidden.contains(category.id) &&
         list.where((c) => !hidden.contains(c.id)).length <= 1) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('至少保留一個分類')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.keepOneCategory)),
+      );
       return;
     }
     setState(() {
@@ -111,6 +130,9 @@ class _MainShellState extends State<MainShell> {
         ...incomeCategories,
         ..._readCustom(preferences, 'custom_income'),
       ], preferences.getStringList('income_order'));
+      _records
+        ..clear()
+        ..addAll(_readRecords(preferences));
       _hiddenExpenses = (preferences.getStringList('hidden_expenses') ?? [])
           .toSet();
       _hiddenIncome = (preferences.getStringList('hidden_income') ?? [])
@@ -151,6 +173,10 @@ class _MainShellState extends State<MainShell> {
         _incomeOrder.where((c) => c.isCustom).map((c) => c.toJson()).toList(),
       ),
     );
+    await preferences.setString(
+      'transaction_records',
+      jsonEncode(_records.map((record) => record.toJson()).toList()),
+    );
   }
 
   void _setVisibility(bool income, String path, bool visible) {
@@ -158,8 +184,9 @@ class _MainShellState extends State<MainShell> {
     final categories = income ? _incomeOrder : _expenseOrder;
     if (!visible &&
         categories.where((c) => !hidden.contains(c.id)).length <= 1) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('至少保留一個分類')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(AppLocalizations.of(context)!.keepOneCategory)),
+      );
       return;
     }
     setState(() {
@@ -170,6 +197,7 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -179,7 +207,8 @@ class _MainShellState extends State<MainShell> {
             categories: _expenseOrder
                 .where((c) => !_hiddenExpenses.contains(c.id))
                 .toList(),
-            transactionName: '支出',
+            transactionName: l10n.expense,
+            isIncome: false,
             onRecorded: _addRecord,
           ),
           RecordPage(
@@ -187,7 +216,8 @@ class _MainShellState extends State<MainShell> {
             categories: _incomeOrder
                 .where((c) => !_hiddenIncome.contains(c.id))
                 .toList(),
-            transactionName: '收入',
+            transactionName: l10n.income,
+            isIncome: true,
             onRecorded: _addRecord,
           ),
           IconSizeSettingsPage(
@@ -206,7 +236,13 @@ class _MainShellState extends State<MainShell> {
             onDeleteCategory: _deleteCategory,
           ),
           StatisticsPage(records: _records),
-          const PlaceholderPage(title: '設定', icon: Icons.settings),
+          RecordManagementPage(
+            records: _records,
+            expenseCategories: _expenseOrder,
+            incomeCategories: _incomeOrder,
+            onUpdated: _updateRecord,
+            onDeleted: _deleteRecord,
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -215,17 +251,44 @@ class _MainShellState extends State<MainShell> {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF26C6A0),
         unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.book), label: '記帳'),
-          BottomNavigationBarItem(icon: Icon(Icons.savings), label: '收入'),
-          BottomNavigationBarItem(icon: Icon(Icons.apps), label: '圖標設定'),
-          BottomNavigationBarItem(icon: Icon(Icons.bar_chart), label: '收支統計'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: '設定'),
+        items: [
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.book),
+            label: l10n.record,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.savings),
+            label: l10n.income,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.apps),
+            label: l10n.iconSettings,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.bar_chart),
+            label: l10n.statistics,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.list_alt),
+            label: l10n.recordManagement,
+          ),
         ],
       ),
     );
   }
 
-  void _addRecord(TransactionRecord record) =>
-      setState(() => _records.add(record));
+  void _addRecord(TransactionRecord record) {
+    setState(() => _records.add(record));
+    _savePreferences();
+  }
+
+  void _updateRecord(int index, TransactionRecord record) {
+    setState(() => _records[index] = record);
+    _savePreferences();
+  }
+
+  void _deleteRecord(int index) {
+    setState(() => _records.removeAt(index));
+    _savePreferences();
+  }
 }

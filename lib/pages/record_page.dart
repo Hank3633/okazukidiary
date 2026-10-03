@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/category_icon.dart';
+import '../l10n/app_localizations.dart';
 
 import '../models/category_item.dart';
 import '../models/transaction_record.dart';
@@ -11,12 +12,14 @@ class RecordPage extends StatefulWidget {
     required this.iconSize,
     required this.categories,
     required this.transactionName,
+    required this.isIncome,
     required this.onRecorded,
   });
 
   final double iconSize;
   final List<CategoryItem> categories;
   final String transactionName;
+  final bool isIncome;
   final ValueChanged<TransactionRecord> onRecorded;
 
   @override
@@ -131,14 +134,17 @@ class _RecordPageState extends State<RecordPage> {
           TransactionRecord(
             category: widget.categories[_selectedCategory],
             amount: amount,
-            isIncome: widget.transactionName == '收入',
+            isIncome: widget.isIncome,
             date: _selectedDate,
           ),
         );
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '已記${widget.transactionName}・${widget.categories[_selectedCategory].label}：${_formatNumber(amount)} 元',
+              AppLocalizations.of(context)!.recordSaved(
+                '${widget.transactionName}・${widget.categories[_selectedCategory].label}',
+                _formatNumber(amount),
+              ),
             ),
           ),
         );
@@ -411,30 +417,16 @@ class _RecordPageState extends State<RecordPage> {
                 ),
                 const SizedBox(height: 8),
                 Expanded(
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(14),
+                  child: _CalculatorKeyButton(
+                    color: const Color(0xFFB4E600),
+                    shadowColor: const Color(0xFFB4E600),
                     onTap: () => _onKey('done'),
-                    child: Container(
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFB4E600),
-                        borderRadius: BorderRadius.circular(14),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFFB4E600)
-                                .withValues(alpha: 0.45),
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      child: const Text(
-                        'OK',
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: Colors.black87,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    child: const Text(
+                      'OK',
+                      style: TextStyle(
+                        fontSize: 22,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
@@ -457,21 +449,13 @@ class _RecordPageState extends State<RecordPage> {
             return Expanded(
               child: Padding(
                 padding: EdgeInsets.only(right: isLast ? 0 : 8),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(14),
+                child: _CalculatorKeyButton(
                   onTap: () => _onKey(e.value),
-                  child: Container(
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF7F7F7),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Text(
-                      e.value,
-                      style: const TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  child: Text(
+                    e.value,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ),
@@ -487,22 +471,16 @@ class _RecordPageState extends State<RecordPage> {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.only(bottom: 8),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
+        child: _CalculatorKeyButton(
+          color: const Color(0xFFE3F2FD),
+          pressedColor: const Color(0xFFBBDEFB),
           onTap: onTap,
-          child: Container(
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: const Color(0xFFE3F2FD),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Text(
-              label,
-              style: const TextStyle(
-                fontSize: 22,
-                color: Color(0xFF1976D2),
-                fontWeight: FontWeight.bold,
-              ),
+          child: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 22,
+              color: Color(0xFF1976D2),
+              fontWeight: FontWeight.bold,
             ),
           ),
         ),
@@ -518,25 +496,86 @@ class _RecordPageState extends State<RecordPage> {
     required VoidCallback onTap,
   }) {
     return Expanded(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(14),
+      child: _CalculatorKeyButton(
+        color: bgColor,
         onTap: onTap,
-        child: Container(
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(14),
+        child: label != null
+            ? Text(
+                label,
+                style: TextStyle(
+                  fontSize: 18,
+                  color: textColor,
+                  fontWeight: FontWeight.bold,
+                ),
+              )
+            : Icon(icon, size: 22, color: Colors.grey.shade700),
+      ),
+    );
+  }
+}
+
+class _CalculatorKeyButton extends StatefulWidget {
+  const _CalculatorKeyButton({
+    required this.child,
+    required this.onTap,
+    this.color = const Color(0xFFF7F7F7),
+    this.pressedColor,
+    this.shadowColor,
+  });
+
+  final Widget child;
+  final VoidCallback onTap;
+  final Color color;
+  final Color? pressedColor;
+  final Color? shadowColor;
+
+  @override
+  State<_CalculatorKeyButton> createState() => _CalculatorKeyButtonState();
+}
+
+class _CalculatorKeyButtonState extends State<_CalculatorKeyButton> {
+  bool _pressed = false;
+
+  void _setPressed(bool pressed) {
+    if (mounted) setState(() => _pressed = pressed);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final activeColor =
+        widget.pressedColor ?? widget.color.withValues(alpha: 0.8);
+    return Semantics(
+      button: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) => _setPressed(true),
+        onTapUp: (_) => _setPressed(false),
+        onTapCancel: () => _setPressed(false),
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          scale: _pressed ? 0.93 : 1,
+          duration: const Duration(milliseconds: 80),
+          curve: Curves.easeOut,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 80),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: _pressed ? activeColor : widget.color,
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: _pressed
+                  ? const []
+                  : [
+                      BoxShadow(
+                        color: (widget.shadowColor ?? Colors.black).withValues(
+                          alpha: widget.shadowColor == null ? 0.08 : 0.35,
+                        ),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+            ),
+            child: widget.child,
           ),
-          child: label != null
-              ? Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: textColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                )
-              : Icon(icon, size: 22, color: Colors.grey.shade700),
         ),
       ),
     );

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/category_item.dart';
+import '../l10n/app_localizations.dart';
 import '../models/transaction_record.dart';
 import '../widgets/pie_chart.dart';
 import '../widgets/category_icon.dart';
@@ -43,8 +44,19 @@ class _StatisticsPageState extends State<StatisticsPage> {
 
   String _formatDate(DateTime date) =>
       '${date.year}/${date.month.toString().padLeft(2, '0')}/${date.day.toString().padLeft(2, '0')}';
+
+  String _formatCurrency(double amount) {
+    final digits = amount.toStringAsFixed(0);
+    final withThousands = digits.replaceAllMapped(
+      RegExp(r'(?<!^)(?=(\d{3})+$)'),
+      (_) => ',',
+    );
+    return 'NT\$ $withThousands';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final filtered = widget.records.where((r) {
       final day = DateUtils.dateOnly(r.date);
       return r.isIncome == _showIncome &&
@@ -61,15 +73,15 @@ class _StatisticsPageState extends State<StatisticsPage> {
       ..sort((a, b) => b.value.compareTo(a.value));
     final total = rows.fold<double>(0, (sum, e) => sum + e.value);
     return Scaffold(
-      appBar: AppBar(title: const Text('收支統計'), centerTitle: true),
+      appBar: AppBar(title: Text(l10n.statistics), centerTitle: true),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
             child: SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: false, label: Text('支出明細')),
-                ButtonSegment(value: true, label: Text('收入明細')),
+              segments: [
+                ButtonSegment(value: false, label: Text(l10n.expense)),
+                ButtonSegment(value: true, label: Text(l10n.income)),
               ],
               selected: {_showIncome},
               onSelectionChanged: (v) => setState(() => _showIncome = v.first),
@@ -92,7 +104,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                 ),
                 TextButton(
                   onPressed: () => setState(() => _dateRange = _currentMonth()),
-                  child: const Text('本月'),
+                  child: Text(l10n.thisMonth),
                 ),
               ],
             ),
@@ -101,20 +113,33 @@ class _StatisticsPageState extends State<StatisticsPage> {
           SizedBox(
             height: 190,
             child: total == 0
-                ? const Center(child: Text('此日期區間尚無記錄'))
-                : CustomPaint(
-                    size: const Size(190, 190),
-                    painter: PieChartPainter(
-                      rows.map((e) => e.value).toList(),
-                      rows.map((e) => items[e.key]!.color).toList(),
-                    ),
+                ? Center(child: Text(l10n.noRecords))
+                : Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      CustomPaint(
+                        size: const Size(190, 190),
+                        painter: PieChartPainter(
+                          rows.map((e) => e.value).toList(),
+                          rows.map((e) => items[e.key]!.color).toList(),
+                        ),
+                      ),
+                      ClipOval(
+                        child: Image.asset(
+                          'assets/images/branding/desktop_icon.png',
+                          width: 62,
+                          height: 62,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ],
                   ),
           ),
           Align(
             alignment: Alignment.centerRight,
             child: Padding(
               padding: const EdgeInsets.only(right: 24),
-              child: Text('總計：\$ ${total.toStringAsFixed(0)}'),
+              child: Text(l10n.total(_formatCurrency(total))),
             ),
           ),
           const Divider(),
@@ -135,7 +160,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
                     backgroundColor: const Color(0xFFECECEC),
                   ),
                   trailing: Text(
-                    '${_showIncome ? '+' : '-'} \$ ${e.value.toStringAsFixed(0)}',
+                    '${_showIncome ? '+' : '-'} ${_formatCurrency(e.value)}',
                     style: TextStyle(
                       color: _showIncome ? Colors.green : Colors.red,
                       fontWeight: FontWeight.bold,

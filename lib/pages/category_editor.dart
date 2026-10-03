@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../data/categories.dart';
+import '../l10n/app_localizations.dart';
 import '../models/category_item.dart';
 import '../widgets/category_icon.dart';
 
@@ -57,7 +58,9 @@ class _CategoryEditorState extends State<CategoryEditor> {
         _error = null;
       });
     } catch (_) {
-      if (mounted) setState(() => _error = '無法讀取圖片，請選擇有效的圖片檔案。');
+      if (mounted) {
+        setState(() => _error = AppLocalizations.of(context)!.imageReadFailed);
+      }
     }
   }
 
@@ -97,7 +100,7 @@ class _CategoryEditorState extends State<CategoryEditor> {
       if (mounted) {
         setState(() {
           _saving = false;
-          _error = '儲存圖片失敗，請重試。';
+          _error = AppLocalizations.of(context)!.imageSaveFailed;
         });
       }
     }
@@ -105,6 +108,7 @@ class _CategoryEditorState extends State<CategoryEditor> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     const colors = [
       Colors.lightBlue,
       Colors.orange,
@@ -116,7 +120,11 @@ class _CategoryEditorState extends State<CategoryEditor> {
       Colors.brown,
     ];
     return Scaffold(
-      appBar: AppBar(title: Text(widget.category == null ? '新增分類' : '編輯分類')),
+      appBar: AppBar(
+        title: Text(
+          widget.category == null ? l10n.addCategory : l10n.editCategory,
+        ),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
@@ -130,16 +138,16 @@ class _CategoryEditorState extends State<CategoryEditor> {
           TextField(
             controller: _name,
             maxLength: 20,
-            decoration: const InputDecoration(labelText: '分類名稱'),
+            decoration: InputDecoration(labelText: l10n.categoryName),
           ),
           if (_error != null)
             Text(_error!, style: const TextStyle(color: Colors.red)),
           OutlinedButton.icon(
             onPressed: _saving ? null : _import,
             icon: const Icon(Icons.photo_library_outlined),
-            label: const Text('匯入圖片'),
+            label: Text(l10n.importImage),
           ),
-          const Text('選擇內建圖示'),
+          Text(l10n.selectBuiltInIcon),
           Wrap(
             spacing: 8,
             runSpacing: 8,
@@ -164,7 +172,7 @@ class _CategoryEditorState extends State<CategoryEditor> {
                 .toList(),
           ),
           const SizedBox(height: 20),
-          const Text('統計顏色'),
+          Text(l10n.statisticsColor),
           Wrap(
             spacing: 8,
             children: colors
@@ -184,7 +192,7 @@ class _CategoryEditorState extends State<CategoryEditor> {
           const SizedBox(height: 20),
           FilledButton(
             onPressed: _saving ? null : _save,
-            child: Text(_saving ? '儲存中…' : '儲存分類'),
+            child: Text(_saving ? l10n.saving : l10n.saveCategory),
           ),
         ],
       ),
