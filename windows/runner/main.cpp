@@ -27,7 +27,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
-  if (!window.Create(L"小芽記帳本", origin, size)) {
+  if (!window.Create(L"\u5C0F\u82BD\u8A18\u5E33\u672C", origin, size)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

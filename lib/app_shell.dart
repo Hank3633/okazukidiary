@@ -12,7 +12,6 @@ import 'pages/record_page.dart';
 import 'pages/statistics_page.dart';
 import 'pages/icon_settings_page.dart';
 import 'pages/record_management_page.dart';
-import 'utils/category_reorder.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -23,7 +22,6 @@ class MainShell extends StatefulWidget {
 
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
-  double _categoryIconSize = 36;
   final List<TransactionRecord> _records = [];
   Set<String> _hiddenExpenses = {};
   Set<String> _hiddenIncome = {};
@@ -43,10 +41,28 @@ class _MainShellState extends State<MainShell> {
     ];
   }
 
-  void _reorder(bool income, int oldIndex, int newIndex) {
+  void _reorderGroup(
+    bool income,
+    bool custom,
+    int oldIndex,
+    int newIndex,
+  ) {
     setState(() {
       final categories = income ? _incomeOrder : _expenseOrder;
-      reorderCategoryList(categories, oldIndex, newIndex);
+      final builtIn = categories
+          .where((category) => !category.isCustom)
+          .toList();
+      final customCategories = categories
+          .where((category) => category.isCustom)
+          .toList();
+      final group = custom ? customCategories : builtIn;
+      if (oldIndex < newIndex) newIndex -= 1;
+      group.insert(newIndex, group.removeAt(oldIndex));
+
+      categories
+        ..clear()
+        ..addAll(builtIn)
+        ..addAll(customCategories);
     });
     _savePreferences();
   }
@@ -143,8 +159,6 @@ class _MainShellState extends State<MainShell> {
       if (_incomeOrder.every((c) => _hiddenIncome.contains(c.id))) {
         _hiddenIncome.clear();
       }
-      final size = preferences.getDouble('category_icon_size');
-      if ([28.0, 32.0, 36.0].contains(size)) _categoryIconSize = size!;
     });
   }
 
@@ -153,12 +167,10 @@ class _MainShellState extends State<MainShell> {
     if (preferences == null) return;
     final expense = _hiddenExpenses.toList();
     final income = _hiddenIncome.toList();
-    final size = _categoryIconSize;
     final expenseOrder = _expenseOrder.map((c) => c.id).toList();
     final incomeOrder = _incomeOrder.map((c) => c.id).toList();
     await preferences.setStringList('hidden_expenses', expense);
     await preferences.setStringList('hidden_income', income);
-    await preferences.setDouble('category_icon_size', size);
     await preferences.setStringList('expense_order', expenseOrder);
     await preferences.setStringList('income_order', incomeOrder);
     await preferences.setString(
@@ -203,7 +215,6 @@ class _MainShellState extends State<MainShell> {
         index: _currentIndex,
         children: [
           RecordPage(
-            iconSize: _categoryIconSize,
             categories: _expenseOrder
                 .where((c) => !_hiddenExpenses.contains(c.id))
                 .toList(),
@@ -212,28 +223,12 @@ class _MainShellState extends State<MainShell> {
             onRecorded: _addRecord,
           ),
           RecordPage(
-            iconSize: _categoryIconSize,
             categories: _incomeOrder
                 .where((c) => !_hiddenIncome.contains(c.id))
                 .toList(),
             transactionName: l10n.income,
             isIncome: true,
             onRecorded: _addRecord,
-          ),
-          IconSizeSettingsPage(
-            selectedSize: _categoryIconSize,
-            onSelected: (size) {
-              setState(() => _categoryIconSize = size);
-              _savePreferences();
-            },
-            hiddenExpenses: _hiddenExpenses,
-            hiddenIncome: _hiddenIncome,
-            onVisibilityChanged: _setVisibility,
-            expenseOrder: _expenseOrder,
-            incomeOrder: _incomeOrder,
-            onReorder: _reorder,
-            onSaveCategory: _saveCategory,
-            onDeleteCategory: _deleteCategory,
           ),
           StatisticsPage(records: _records),
           RecordManagementPage(
@@ -242,6 +237,16 @@ class _MainShellState extends State<MainShell> {
             incomeCategories: _incomeOrder,
             onUpdated: _updateRecord,
             onDeleted: _deleteRecord,
+          ),
+          IconSizeSettingsPage(
+            hiddenExpenses: _hiddenExpenses,
+            hiddenIncome: _hiddenIncome,
+            onVisibilityChanged: _setVisibility,
+            expenseOrder: _expenseOrder,
+            incomeOrder: _incomeOrder,
+            onReorderGroup: _reorderGroup,
+            onSaveCategory: _saveCategory,
+            onDeleteCategory: _deleteCategory,
           ),
         ],
       ),
@@ -254,15 +259,11 @@ class _MainShellState extends State<MainShell> {
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.book),
-            label: l10n.record,
+            label: l10n.expense,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.savings),
             label: l10n.income,
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.apps),
-            label: l10n.iconSettings,
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.bar_chart),
@@ -271,6 +272,10 @@ class _MainShellState extends State<MainShell> {
           BottomNavigationBarItem(
             icon: const Icon(Icons.list_alt),
             label: l10n.recordManagement,
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.apps),
+            label: l10n.iconSettings,
           ),
         ],
       ),

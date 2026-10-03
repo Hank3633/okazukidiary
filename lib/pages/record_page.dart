@@ -9,14 +9,12 @@ import '../models/transaction_record.dart';
 class RecordPage extends StatefulWidget {
   const RecordPage({
     super.key,
-    required this.iconSize,
     required this.categories,
     required this.transactionName,
     required this.isIncome,
     required this.onRecorded,
   });
 
-  final double iconSize;
   final List<CategoryItem> categories;
   final String transactionName;
   final bool isIncome;
@@ -27,6 +25,7 @@ class RecordPage extends StatefulWidget {
 }
 
 class _RecordPageState extends State<RecordPage> {
+  static const _categoryIconSize = 36.0;
   int _selectedCategory = 0;
   @override
   void didUpdateWidget(covariant RecordPage oldWidget) {
@@ -305,7 +304,7 @@ class _RecordPageState extends State<RecordPage> {
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         mainAxisExtent:
-            widget.iconSize +
+            _categoryIconSize +
             24 +
             MediaQuery.textScalerOf(context).scale(11) * 2.4,
         mainAxisSpacing: 6,
@@ -333,9 +332,9 @@ class _RecordPageState extends State<RecordPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   SizedBox(
-                    width: widget.iconSize,
-                    height: widget.iconSize,
-                    child: CategoryIcon(category: c, size: widget.iconSize),
+                    width: _categoryIconSize,
+                    height: _categoryIconSize,
+                    child: CategoryIcon(category: c, size: _categoryIconSize),
                   ),
                   const SizedBox(height: 4),
                   Text(

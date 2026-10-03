@@ -9,27 +9,24 @@ import '../models/category_item.dart';
 class IconSizeSettingsPage extends StatefulWidget {
   const IconSizeSettingsPage({
     super.key,
-    required this.selectedSize,
-    required this.onSelected,
     required this.hiddenExpenses,
     required this.hiddenIncome,
     required this.onVisibilityChanged,
     required this.expenseOrder,
     required this.incomeOrder,
-    required this.onReorder,
+    required this.onReorderGroup,
     required this.onSaveCategory,
     required this.onDeleteCategory,
   });
 
-  final double selectedSize;
   final void Function(bool income, CategoryItem category) onSaveCategory;
   final void Function(bool income, CategoryItem category) onDeleteCategory;
-  final ValueChanged<double> onSelected;
   final Set<String> hiddenExpenses;
   final Set<String> hiddenIncome;
   final List<CategoryItem> expenseOrder;
   final List<CategoryItem> incomeOrder;
-  final void Function(bool income, int oldIndex, int newIndex) onReorder;
+  final void Function(bool income, bool custom, int oldIndex, int newIndex)
+  onReorderGroup;
   final void Function(bool income, String path, bool visible)
   onVisibilityChanged;
 
@@ -86,7 +83,6 @@ class _IconSizeSettingsPageState extends State<IconSizeSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    const sizes = [28.0, 32.0, 36.0];
     return Scaffold(
       appBar: AppBar(title: Text(l10n.iconSettings), centerTitle: true),
       body: Padding(
@@ -105,31 +101,34 @@ class _IconSizeSettingsPageState extends State<IconSizeSettingsPage> {
               ),
             ),
             const SizedBox(height: 24),
-            Text(
-              l10n.iconSize,
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            OutlinedButton.icon(
+              onPressed: () => _edit(_showIncome),
+              icon: const Icon(Icons.add),
+              label: Text(l10n.addCategory),
             ),
-            const SizedBox(height: 8),
-            Text(l10n.iconSizeHint),
             const SizedBox(height: 20),
-            Wrap(
-              spacing: 12,
-              children: sizes
-                  .map(
-                    (size) => ChoiceChip(
-                      label: Text('${size.toInt()} px'),
-                      selected: widget.selectedSize == size,
-                      onSelected: (_) => widget.onSelected(size),
-                    ),
-                  )
+            _section(
+              title: l10n.builtInCategories,
+              categories: (_showIncome
+                      ? widget.incomeOrder
+                      : widget.expenseOrder)
+                  .where((category) => !category.isCustom)
                   .toList(),
+              _showIncome ? widget.hiddenIncome : widget.hiddenExpenses,
+              _showIncome,
+              custom: false,
             ),
             const SizedBox(height: 24),
             _section(
-              _showIncome ? l10n.incomeIcons : l10n.expenseIcons,
-              _showIncome ? widget.incomeOrder : widget.expenseOrder,
+              title: l10n.customCategories,
+              categories: (_showIncome
+                      ? widget.incomeOrder
+                      : widget.expenseOrder)
+                  .where((category) => category.isCustom)
+                  .toList(),
               _showIncome ? widget.hiddenIncome : widget.hiddenExpenses,
               _showIncome,
+              custom: true,
             ),
           ],
         ),
@@ -137,12 +136,13 @@ class _IconSizeSettingsPageState extends State<IconSizeSettingsPage> {
     );
   }
 
-  Widget _section(
-    String title,
-    List<CategoryItem> categories,
-    Set<String> hidden,
-    bool income,
-  ) {
+  Widget _section({
+    required String title,
+    required List<CategoryItem> categories,
+    required Set<String> hidden,
+    required bool income,
+    required bool custom,
+  }) {
     final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -153,18 +153,18 @@ class _IconSizeSettingsPageState extends State<IconSizeSettingsPage> {
         ),
         Text(l10n.showAndReorderHint),
         const SizedBox(height: 8),
-        OutlinedButton.icon(
-          onPressed: () => _edit(income),
-          icon: const Icon(Icons.add),
-          label: Text(l10n.addCategory),
-        ),
+        if (categories.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text(l10n.noCustomCategories),
+          ),
         ReorderableListView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           buildDefaultDragHandles: false,
           itemCount: categories.length,
-          onReorderItem: (oldIndex, newIndex) =>
-              widget.onReorder(income, oldIndex, newIndex),
+          onReorder: (oldIndex, newIndex) =>
+              widget.onReorderGroup(income, custom, oldIndex, newIndex),
           itemBuilder: (context, index) {
             final category = categories[index];
             return ListTile(
