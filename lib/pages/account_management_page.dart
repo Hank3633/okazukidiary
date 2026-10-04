@@ -48,7 +48,6 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
   final _transferAmount = TextEditingController();
   final Map<String, TextEditingController> _balances = {};
   final Map<String, TextEditingController> _names = {};
-  bool _showTransferForm = false;
   String? _sourceAccountId;
   String? _targetAccountId;
   DateTime _transferDate = DateUtils.dateOnly(DateTime.now());
@@ -155,6 +154,7 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
       _names[account.id] = TextEditingController(text: newName);
       _newAccountName.clear();
     }
+    _resetTransferAccounts();
     final accounts = _currentAccounts();
     setState(() => _accounts = accounts);
     widget.onSaved(accounts);
@@ -250,19 +250,12 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
     }
   }
 
-  void _toggleTransferForm() {
+  void _submitTransfer() {
     if (_accounts.length < 2) {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text('至少需要兩個帳戶才能轉帳')));
       return;
     }
-    setState(() {
-      _resetTransferAccounts();
-      _showTransferForm = !_showTransferForm;
-    });
-  }
-
-  void _submitTransfer() {
     final amount = double.tryParse(_transferAmount.text.trim());
     if (amount == null || amount <= 0) {
       ScaffoldMessenger.of(context)
@@ -285,7 +278,6 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
     setState(() {
       _transferAmount.clear();
       _transferDate = DateUtils.dateOnly(DateTime.now());
-      _showTransferForm = false;
       _resetTransferAccounts();
     });
     ScaffoldMessenger.of(context)
@@ -335,42 +327,31 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InkWell(
-            onTap: _toggleTransferForm,
-            borderRadius: BorderRadius.circular(10),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 3),
-              child: Row(
-                children: [
-                  const Icon(
-                    Icons.swap_horiz,
-                    size: 17,
-                    color: Color(0xFF26C6A0),
-                  ),
-                  const SizedBox(width: 6),
-                  const Text(
-                    '帳戶轉帳',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF333333),
-                    ),
-                  ),
-                  const Spacer(),
-                  Icon(
-                    _showTransferForm
-                        ? Icons.keyboard_arrow_up
-                        : Icons.keyboard_arrow_down,
-                    color: const Color(0xFF8A8A8A),
-                  ),
-                ],
+          const Row(
+            children: [
+              Icon(Icons.swap_horiz, size: 17, color: Color(0xFF26C6A0)),
+              SizedBox(width: 6),
+              Text(
+                '帳戶轉帳',
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF333333),
+                ),
               ),
-            ),
+            ],
           ),
-          if (_showTransferForm) ...[
-            const Divider(height: 22),
+          const Divider(height: 22),
+          if (_accounts.length < 2)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 4),
+              child: Text(
+                '新增另一個銀行/帳戶後即可轉帳',
+                style: TextStyle(color: Color(0xFF8A8A8A), fontSize: 13),
+              ),
+            )
+          else
             _transferForm(),
-          ],
         ],
       ),
     );
@@ -386,7 +367,7 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
         DropdownButtonFormField<String>(
           value: _sourceAccountId,
           isExpanded: true,
-          decoration: const InputDecoration(labelText: '從哪個帳戶轉出'),
+          decoration: _transferInputDecoration('從哪個帳戶轉出'),
           items: _accounts
               .map(
                 (account) => DropdownMenuItem(
@@ -407,7 +388,7 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
         DropdownButtonFormField<String>(
           value: _targetAccountId,
           isExpanded: true,
-          decoration: const InputDecoration(labelText: '轉入哪個帳戶'),
+          decoration: _transferInputDecoration('轉入哪個帳戶'),
           items: availableTargets
               .map(
                 (account) => DropdownMenuItem(
@@ -422,18 +403,50 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
         TextField(
           controller: _transferAmount,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          decoration: const InputDecoration(
-            labelText: '轉帳金額',
-            prefixText: 'NT\$ ',
-          ),
+          decoration: _transferInputDecoration('轉帳金額', prefixText: 'NT\$ '),
         ),
         const SizedBox(height: 16),
-        FilledButton.icon(
-          onPressed: _submitTransfer,
-          icon: const Icon(Icons.check),
-          label: const Text('確認轉帳'),
+        SizedBox(
+          height: 44,
+          child: FilledButton.icon(
+            onPressed: _submitTransfer,
+            icon: const Icon(Icons.check),
+            label: const Text(
+              '確認轉帳',
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF26C6A0),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+          ),
         ),
       ],
+    );
+  }
+
+  InputDecoration _transferInputDecoration(String label, {String? prefixText}) {
+    return InputDecoration(
+      labelText: label,
+      prefixText: prefixText,
+      isDense: true,
+      filled: true,
+      fillColor: const Color(0xFFF7FAF9),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFE4E7E6)),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFFE4E7E6)),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Color(0xFF26C6A0), width: 1.4),
+      ),
     );
   }
 
