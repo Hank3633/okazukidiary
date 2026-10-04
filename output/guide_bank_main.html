@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-canvas-width="400" data-canvas-height="872">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>銀行管理主頁</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+  body { font-family:'Segoe UI','PingFang TC','Microsoft JhengHei',Roboto,sans-serif; }
+  .phone { width:400px; background:#000; border-radius:40px; padding:12px; margin:0 auto; }
+  .screen { width:376px; height:848px; background:#F2F2F2; border-radius:30px; overflow:hidden; position:relative; }
+  .statusbar { height:26px; background:#fff; display:flex; align-items:center; justify-content:space-between; padding:0 18px; font-size:12px; font-weight:600; color:#1c1c1e; }
+  .statusbar .right { display:flex; gap:6px; align-items:center; }
+  .appbar { height:52px; background:#fff; display:flex; align-items:center; justify-content:center; position:relative; border-bottom:1px solid #f0f0f0; }
+  .appbar .title { font-size:18px; font-weight:600; color:#1c1c1e; letter-spacing:.3px; }
+  .appbar .act { position:absolute; right:10px; top:50%; transform:translateY(-50%); display:flex; align-items:center; gap:3px; color:#26C6A0; font-size:13px; font-weight:600; }
+  .body { padding:12px 14px 10px; }
+  .summary { border-radius:18px; padding:16px 18px; color:#fff; background:linear-gradient(135deg,#2ad6ad 0%,#1f9e83 55%,#17856f 100%); box-shadow:0 8px 20px rgba(38,198,160,.30); }
+  .summary .label { font-size:12px; letter-spacing:1px; opacity:.85; display:flex; align-items:center; gap:6px; }
+  .summary .amount { font-size:30px; font-weight:800; margin-top:4px; letter-spacing:.4px; }
+  .summary .row { display:flex; align-items:center; gap:8px; margin-top:10px; }
+  .pill { background:rgba(255,255,255,.22); border-radius:20px; padding:3px 10px; font-size:11px; display:flex; align-items:center; gap:4px; }
+  .summary .sub { font-size:11px; opacity:.8; margin-left:auto; }
+  .acct { background:#fff; border-radius:16px; padding:10px 14px 4px; margin-top:10px; box-shadow:0 1px 2px rgba(20,40,35,.06); }
+  .toprow { display:flex; align-items:center; padding:2px 0; }
+  .avatar { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+  .mid { margin-left:11px; flex:1; min-width:0; }
+  .name { font-size:15px; font-weight:600; color:#1c1c1e; display:flex; align-items:center; gap:5px; }
+  .name .edit { color:#b0b0b0; display:flex; }
+  .orig { font-size:11.5px; color:#8a8a8a; margin-top:2px; }
+  .bal { text-align:right; }
+  .bal .val { font-size:16px; font-weight:800; color:#2e9e5b; letter-spacing:.3px; }
+  .bal .tag { font-size:10px; color:#b0b0b0; margin-top:1px; }
+  .del { color:#c0c0c0; display:flex; margin-left:4px; }
+  .balinput { margin:6px 8px 0 0; border-bottom:1px solid #e4e7e6; padding:4px 0; font-size:13px; color:#8a8a8a; }
+  .detail { display:flex; align-items:center; justify-content:flex-end; gap:2px; color:#26C6A0; font-size:12px; font-weight:600; padding:4px 8px 4px 0; }
+  .add { background:#fff; border-radius:16px; padding:14px; margin-top:12px; box-shadow:0 1px 2px rgba(20,40,35,.06); }
+  .add .tt { font-size:13px; font-weight:600; color:#333; display:flex; align-items:center; gap:6px; margin-bottom:10px; }
+  .add .field { border:1px solid #e4e7e6; border-radius:12px; padding:11px 12px; font-size:13px; color:#9aa5a0; background:#f7faf9; }
+  .add .btn { margin-top:10px; background:#26c6a0; color:#fff; border:none; border-radius:12px; height:44px; font-size:15px; font-weight:600; width:100%; letter-spacing:.4px; text-align:center; line-height:44px; }
+  .bottombar { position:absolute; left:0; right:0; bottom:0; height:60px; background:#fff; display:flex; border-top:1px solid #f0f0f0; }
+  .navitem { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:#9a9a9a; font-size:10px; }
+  .navitem.active { color:#26c6a0; }
+  .navitem svg { width:22px; height:22px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="right"><svg width="16" height="12" viewBox="0 0 24 12" fill="#1c1c1e"><rect x="1" y="7" width="4" height="4" rx="1"/><rect x="6.5" y="4.5" width="4" height="6.5" rx="1"/><rect x="12" y="2" width="4" height="9" rx="1"/><rect x="17.5" y="0" width="4" height="11" rx="1"/></svg><svg width="20" height="12" viewBox="0 0 24 12" fill="none" stroke="#1c1c1e" stroke-width="1.6"><rect x="0.8" y="0.8" width="20.4" height="10.4" rx="3"/><rect x="22" y="4" width="2" height="4" rx="1"/></svg><svg width="14" height="12" viewBox="0 0 24 12" fill="#1c1c1e"><path d="M14 4c0-2.2-1.8-4-4-4H4v16h6c2.2 0 4-1.8 4-4 0-1.1-.4-2-1-2.7.6-.7 1-1.6 1-2.7z"/></svg></span>
+    </div>
+    <div class="appbar"><span class="title">銀行管理</span><span class="act"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6.99 11 3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>轉帳</span></div>
+    <div class="body">
+      <div class="summary">
+        <div class="label"><svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M4 10h3v7H4v-7zm6 0h3v7h-3v-7zm6 0h3v7h-3v-7zM4 19h16v2H4v-2zM13 3.5 21 6v2H3V6l10-2.5z"/></svg>資產總計</div>
+        <div class="amount">NT$ 119,750</div>
+        <div class="row"><span class="pill"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>本月 +12,480</span><span class="sub">2 個帳戶</span></div>
+      </div>
+      <div class="acct">
+        <div class="toprow">
+          <div class="avatar" style="background:#26c6a0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-4h4c0 1.66 1.34 3 3 3s3-1.34 3-3h6v4zm0-6h-6c0-1.66-1.34-3-3-3s-3 1.34-3 3H4V6h16v6z"/></svg></div>
+          <div class="mid"><div class="name">現金帳戶<span class="edit"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9z"/></svg></span></div><div class="orig">起始存款 NT$ 50,000</div></div>
+          <div class="bal"><div class="val">NT$ 23,400</div><div class="tag">目前餘額</div></div>
+        </div>
+        <div class="balinput">起始存款 NT$ 50,000</div>
+        <div class="detail">查看交易明細<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+      <div class="acct">
+        <div class="toprow">
+          <div class="avatar" style="background:#f5a623;"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M21 7H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 12H3v-5h4c0 1.66 1.34 3 3 3s3-1.34 3-3h8v5zm0-7h-8c0 1.66-1.34 3-3 3s-3-1.34-3-3H3V9h18v3z"/></svg></div>
+          <div class="mid"><div class="name">台新銀行<span class="edit"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></span></div><div class="orig">起始存款 NT$ 80,000</div></div>
+          <div class="bal"><div class="val">NT$ 96,350</div><div class="tag">目前餘額</div></div>
+          <div class="del"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg></div>
+        </div>
+        <div class="balinput">起始存款 NT$ 80,000</div>
+        <div class="detail">查看交易明細<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg></div>
+      </div>
+      <div class="add">
+        <div class="tt"><svg width="15" height="15" viewBox="0 0 24 24" fill="#26c6a0"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>新增帳戶</div>
+        <div class="field">銀行／帳戶名稱</div>
+        <div class="btn">新增並儲存</div>
+      </div>
+    </div>
+    <div class="bottombar">
+      <div class="navitem"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>支出</div>
+      <div class="navitem"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>收入</div>
+      <div class="navitem"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zM16.2 13h2.8v6h-2.8z"/></svg>收支統計</div>
+      <div class="navitem active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 10h3v7H4v-7zm6 0h3v7h-3v-7zm6 0h3v7h-3v-7zM4 19h16v2H4v-2zM13 3.5 21 6v2H3V6l10-2.5z"/></svg>銀行管理</div>
+      <div class="navitem"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>圖標</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

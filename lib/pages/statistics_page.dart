@@ -93,7 +93,7 @@ class _StatisticsPageState extends State<StatisticsPage> {
             tabs: [
               Tab(text: l10n.expense),
               Tab(text: l10n.income),
-              const Tab(text: '紀錄'),
+              const Tab(text: '收支編輯'),
             ],
           ),
         ),

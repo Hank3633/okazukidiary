@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-canvas-width="400" data-canvas-height="872">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>圖標設定</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+  body { font-family:'Segoe UI','PingFang TC','Microsoft JhengHei',Roboto,sans-serif; }
+  .phone { width:400px; background:#000; border-radius:40px; padding:12px; margin:0 auto; }
+  .screen { width:376px; height:848px; background:#F2F2F2; border-radius:30px; overflow:hidden; position:relative; }
+  .statusbar { height:26px; background:#fff; display:flex; align-items:center; justify-content:space-between; padding:0 18px; font-size:12px; font-weight:600; color:#1c1c1e; }
+  .appbar { height:52px; background:#fff; display:flex; align-items:center; justify-content:center; position:relative; border-bottom:1px solid #f0f0f0; }
+  .appbar .title { font-size:18px; font-weight:600; color:#1c1c1e; }
+  .body { padding:20px 24px; }
+  .seg { display:flex; background:#eef2f0; border-radius:12px; padding:3px; }
+  .seg .s { flex:1; text-align:center; padding:8px 0; font-size:13px; border-radius:10px; color:#6b6b6b; }
+  .seg .s.on { background:#fff; color:#26c6a0; font-weight:600; box-shadow:0 1px 3px rgba(0,0,0,.1); }
+  .addbtn { width:100%; margin-top:22px; padding:12px; border:1px solid #26c6a0; color:#26c6a0; border-radius:12px; background:#fff; font-size:14px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px; }
+  .sec { margin-top:20px; }
+  .sec .tt { font-size:17px; font-weight:700; color:#1c1c1e; }
+  .sec .hint { font-size:12px; color:#8a8a8a; margin-top:2px; }
+  .row { display:flex; align-items:center; padding:10px 0; border-bottom:1px solid #f0f0f0; }
+  .cb { width:20px; height:20px; border-radius:4px; background:#26c6a0; display:flex; align-items:center; justify-content:center; color:#fff; flex-shrink:0; }
+  .ico { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:17px; margin-left:12px; flex-shrink:0; }
+  .nm { margin-left:12px; flex:1; font-size:14px; color:#1c1c1e; }
+  .drag { color:#b0b0b0; display:flex; }
+  .bottombar { position:absolute; left:0; right:0; bottom:0; height:60px; background:#fff; display:flex; border-top:1px solid #f0f0f0; }
+  .navitem { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; color:#9a9a9a; font-size:10px; }
+  .navitem.active { color:#26c6a0; }
+  .navitem svg { width:22px; height:22px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="statusbar"><span>9:41</span><span></span></div>
+    <div class="appbar"><span class="title">圖標</span></div>
+    <div class="body">
+      <div class="seg"><div class="s on">支出圖標</div><div class="s">收入圖標</div></div>
+      <div class="addbtn"><svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>新增分類</div>
+      <div class="sec">
+        <div class="tt">內建分類</div>
+        <div class="hint">打勾顯示，拖曳調整順序</div>
+        <div class="row"><div class="cb"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="ico" style="background:#e3f2fd;">🍽</div><div class="nm">餐點</div><div class="drag"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div></div>
+        <div class="row"><div class="cb"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="ico" style="background:#fdecea;">🥤</div><div class="nm">飲料</div><div class="drag"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div></div>
+        <div class="row"><div class="cb"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="ico" style="background:#e8f5e9;">🍎</div><div class="nm">水果</div><div class="drag"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div></div>
+        <div class="row"><div class="cb"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="ico" style="background:#fdecea;">🏠</div><div class="nm">住宿</div><div class="drag"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div></div>
+        <div class="row"><div class="cb"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="ico" style="background:#e0f2f1;">🚌</div><div class="nm">交通</div><div class="drag"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div></div>
+        <div class="row"><div class="cb"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg></div><div class="ico" style="background:#eceff1;">👕</div><div class="nm">衣服</div><div class="drag"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M11 18c0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2 2 .9 2 2zm-2-8c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm6 4c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm0 2c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0 6c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2z"/></svg></div></div>
+      </div>
+    </div>
+    <div class="bottombar">
+      <div class="navitem"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>支出</div>
+      <div class="navitem"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>收入</div>
+      <div class="navitem"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zM16.2 13h2.8v6h-2.8z"/></svg>收支統計</div>
+      <div class="navitem"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 10h3v7H4v-7zm6 0h3v7h-3v-7zm6 0h3v7h-3v-7zM4 19h16v2H4v-2zM13 3.5 21 6v2H3V6l10-2.5z"/></svg>銀行管理</div>
+      <div class="navitem active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>圖標</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

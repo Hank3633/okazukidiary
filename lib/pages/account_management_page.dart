@@ -306,21 +306,71 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
         children: [
           _summaryCard(),
           const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: _toggleTransferForm,
-            icon: const Icon(Icons.swap_horiz),
-            label: Text(_showTransferForm ? '收起轉帳表單' : '帳戶轉帳'),
-          ),
-          if (_showTransferForm) ...[
-            const SizedBox(height: 12),
-            _transferForm(),
-          ],
-          const SizedBox(height: 12),
           for (final account in _accounts.where((a) => a.id == 'cash'))
             _accountCard(account, isCash: true, bankIndex: 0),
           for (var i = 0; i < banks.length; i++)
             _accountCard(banks[i], isCash: false, bankIndex: i),
           _addCard(),
+          const SizedBox(height: 12),
+          _transferCard(),
+        ],
+      ),
+    );
+  }
+
+  Widget _transferCard() {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0F142823),
+            blurRadius: 4,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          InkWell(
+            onTap: _toggleTransferForm,
+            borderRadius: BorderRadius.circular(10),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.swap_horiz,
+                    size: 17,
+                    color: Color(0xFF26C6A0),
+                  ),
+                  const SizedBox(width: 6),
+                  const Text(
+                    '帳戶轉帳',
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF333333),
+                    ),
+                  ),
+                  const Spacer(),
+                  Icon(
+                    _showTransferForm
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: const Color(0xFF8A8A8A),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          if (_showTransferForm) ...[
+            const Divider(height: 22),
+            _transferForm(),
+          ],
         ],
       ),
     );
@@ -330,72 +380,60 @@ class _AccountManagementPageState extends State<AccountManagementPage> {
     final availableTargets = _accounts
         .where((account) => account.id != _sourceAccountId)
         .toList();
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              '帳戶轉帳',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              value: _sourceAccountId,
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: '從哪個帳戶轉出'),
-              items: _accounts
-                  .map(
-                    (account) => DropdownMenuItem(
-                      value: account.id,
-                      child: Text(account.name),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) {
-                if (value == null) return;
-                setState(() {
-                  _sourceAccountId = value;
-                  _resetTransferAccounts();
-                });
-              },
-            ),
-            const SizedBox(height: 12),
-            DropdownButtonFormField<String>(
-              value: _targetAccountId,
-              isExpanded: true,
-              decoration: const InputDecoration(labelText: '轉入哪個帳戶'),
-              items: availableTargets
-                  .map(
-                    (account) => DropdownMenuItem(
-                      value: account.id,
-                      child: Text(account.name),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() => _targetAccountId = value),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _transferAmount,
-              keyboardType: const TextInputType.numberWithOptions(
-                decimal: true,
-              ),
-              decoration: const InputDecoration(
-                labelText: '轉帳金額',
-                prefixText: 'NT\$ ',
-              ),
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: _submitTransfer,
-              icon: const Icon(Icons.check),
-              label: const Text('確認轉帳'),
-            ),
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        DropdownButtonFormField<String>(
+          value: _sourceAccountId,
+          isExpanded: true,
+          decoration: const InputDecoration(labelText: '從哪個帳戶轉出'),
+          items: _accounts
+              .map(
+                (account) => DropdownMenuItem(
+                  value: account.id,
+                  child: Text(account.name),
+                ),
+              )
+              .toList(),
+          onChanged: (value) {
+            if (value == null) return;
+            setState(() {
+              _sourceAccountId = value;
+              _resetTransferAccounts();
+            });
+          },
         ),
-      ),
+        const SizedBox(height: 12),
+        DropdownButtonFormField<String>(
+          value: _targetAccountId,
+          isExpanded: true,
+          decoration: const InputDecoration(labelText: '轉入哪個帳戶'),
+          items: availableTargets
+              .map(
+                (account) => DropdownMenuItem(
+                  value: account.id,
+                  child: Text(account.name),
+                ),
+              )
+              .toList(),
+          onChanged: (value) => setState(() => _targetAccountId = value),
+        ),
+        const SizedBox(height: 12),
+        TextField(
+          controller: _transferAmount,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(
+            labelText: '轉帳金額',
+            prefixText: 'NT\$ ',
+          ),
+        ),
+        const SizedBox(height: 16),
+        FilledButton.icon(
+          onPressed: _submitTransfer,
+          icon: const Icon(Icons.check),
+          label: const Text('確認轉帳'),
+        ),
+      ],
     );
   }
 

@@ -24,6 +24,28 @@ class MainShell extends StatefulWidget {
 }
 
 class _MainShellState extends State<MainShell> {
+  static const _defaultExpenseLabels = {
+    '餐點',
+    '住宿',
+    '交通',
+    '衣服',
+    '電費',
+    '娛樂',
+    '醫療',
+    '其他',
+  };
+  static const _defaultIncomeLabels = {
+    '薪資',
+    '獎金',
+    '接案',
+    '投資',
+    '利息',
+    '退款',
+    '禮金',
+    '其他',
+  };
+  static const _categoryDefaultsKey = 'category_visibility_defaults_v1';
+
   int _currentIndex = 0;
   final List<TransactionRecord> _records = [];
   List<AccountTransfer> _transfers = [];
@@ -179,6 +201,9 @@ class _MainShellState extends State<MainShell> {
   Future<void> _loadPreferences() async {
     final preferences = await SharedPreferences.getInstance();
     if (!mounted) return;
+    final applyCategoryDefaults = !preferences.containsKey(
+      _categoryDefaultsKey,
+    );
     setState(() {
       _preferences = preferences;
       _expenseOrder = _restoreOrder([
@@ -198,6 +223,18 @@ class _MainShellState extends State<MainShell> {
           .toSet();
       _hiddenIncome = (preferences.getStringList('hidden_income') ?? [])
           .toSet();
+      if (applyCategoryDefaults) {
+        _hiddenExpenses = _expenseOrder
+            .where(
+              (category) => !_defaultExpenseLabels.contains(category.label),
+            )
+            .map((category) => category.id)
+            .toSet();
+        _hiddenIncome = _incomeOrder
+            .where((category) => !_defaultIncomeLabels.contains(category.label))
+            .map((category) => category.id)
+            .toSet();
+      }
       if (_expenseOrder.every((c) => _hiddenExpenses.contains(c.id))) {
         _hiddenExpenses.clear();
       }
@@ -205,6 +242,10 @@ class _MainShellState extends State<MainShell> {
         _hiddenIncome.clear();
       }
     });
+    if (applyCategoryDefaults) {
+      await preferences.setBool(_categoryDefaultsKey, true);
+      await _savePreferences();
+    }
   }
 
   Future<void> _savePreferences() async {

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>記帳 App 操作教學</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2326C6A0'/%3E%3Cpath d='M18 22h28v6H18zM18 32h28v6H18zM18 42h18v6H18z' fill='%23fff'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@600;700;900&display=swap">
+<style>
+  :root{
+    --teal:#26C6A0;
+    --teal-dark:#1F9E83;
+    --teal-deep:#17856F;
+    --teal-soft:#E7F6F1;
+    --ink:#16302A;
+    --ink-2:#435B54;
+    --muted:#7C8C86;
+    --paper:#F4F8F6;
+    --card:#FFFFFF;
+    --line:#E2EBE7;
+    --amber:#B87B1F;
+    --amber-soft:#FBF1DE;
+    --blue-soft:#EAF2FB;
+    --red:#C6453C;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:'Noto Sans TC','PingFang TC','Microsoft JhengHei',sans-serif;
+    background:var(--paper);color:var(--ink);line-height:1.75;font-size:16px;
+  }
+  /* ===== 頂部 ===== */
+  .masthead{
+    background:
+      radial-gradient(1200px 380px at 18% -30%, rgba(38,198,160,.28), transparent 60%),
+      linear-gradient(180deg,#FFFFFF 0%,#F4F8F6 100%);
+    border-bottom:1px solid var(--line);
+    padding:44px 22px 30px;
+  }
+  .mast-inner{max-width:1080px;margin:0 auto;}
+  .brandline{display:flex;align-items:center;gap:9px;font-weight:700;color:var(--teal-dark);font-size:13.5px;letter-spacing:.6px;}
+  .brandline svg{width:20px;height:20px;}
+  h1{
+    font-family:'Noto Serif TC',serif;font-weight:900;font-size:clamp(30px,5vw,46px);
+    letter-spacing:.5px;margin-top:14px;color:var(--ink);line-height:1.2;
+  }
+  .sub{color:var(--ink-2);margin-top:10px;max-width:640px;font-size:15.5px;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;}
+  .chip{background:#fff;border:1px solid var(--line);color:var(--ink-2);border-radius:999px;padding:4px 12px;font-size:12.5px;display:flex;align-items:center;gap:6px;}
+  .chip b{color:var(--teal-deep);font-weight:700;}
+  .chip svg{width:14px;height:14px;color:var(--teal);}
+
+  /* ===== 主版 ===== */
+  .wrap{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:236px 1fr;gap:34px;padding:34px 22px 70px;align-items:start;}
+  .wrap>*{min-width:0;}
+  /* 目錄 */
+  .toc{position:sticky;top:22px;min-width:0;}
+  .toc-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 6px 16px 14px;}
+  .toc-title{font-size:12px;letter-spacing:2px;color:var(--muted);font-weight:700;padding:0 10px 10px;}
+  .toc a{
+    display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink-2);
+    padding:7px 10px;border-radius:9px;font-size:13.5px;border-left:3px solid transparent;
+    transition:background .2s,color .2s;
+  }
+  .toc a .no{font-family:'Noto Serif TC',serif;font-weight:700;color:var(--muted);font-size:12px;min-width:18px;}
+  .toc a:hover{background:var(--teal-soft);color:var(--teal-deep);}
+  .toc a.active{background:var(--teal-soft);color:var(--teal-deep);border-left-color:var(--teal);font-weight:700;}
+  .toc a.active .no{color:var(--teal-deep);}
+
+  /* 章節 */
+  .content{min-width:0;}
+  section{margin-bottom:46px;scroll-margin-top:18px;}
+  .sec-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:20px;}
+  .sec-num{font-family:'Noto Serif TC',serif;font-weight:900;font-size:30px;color:var(--teal);line-height:1;}
+  .sec-title{font-family:'Noto Serif TC',serif;font-weight:700;font-size:25px;color:var(--ink);letter-spacing:.3px;}
+  .sec-intro{color:var(--ink-2);margin-bottom:18px;max-width:760px;}
+  .subsec{margin:22px 0 6px;}
+  .subsec h3{
+    font-size:17px;font-weight:700;color:var(--ink);
+    display:flex;align-items:center;gap:9px;margin-bottom:8px;
+  }
+  .subsec h3 .dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+  .subsec>p,.subsec>ul,.subsec>ol{color:var(--ink-2);max-width:760px;}
+
+  ul.plain{list-style:none;}
+  ul.plain li{position:relative;padding-left:24px;margin-bottom:7px;}
+  ul.plain li::before{
+    content:"";position:absolute;left:2px;top:11px;width:9px;height:9px;border-radius:3px;background:var(--teal);
+  }
+  ol.steps{list-style:none;counter-reset:step;margin-top:4px;}
+  ol.steps>li{position:relative;padding-left:34px;margin-bottom:9px;counter-increment:step;}
+  ol.steps>li::before{
+    content:counter(step);position:absolute;left:0;top:2px;width:22px;height:22px;border-radius:50%;
+    background:var(--teal-soft);color:var(--teal-deep);font-weight:700;font-size:12.5px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  ol.steps>li>b,ul.plain li>b{color:var(--ink);font-weight:700;}
+  .kbd{
+    display:inline-block;background:#fff;border:1px solid var(--line);border-bottom-width:2px;
+    border-radius:6px;padding:0 7px;font-family:ui-monospace,'Cascadia Code',Consolas,monospace;
+    font-size:12.5px;color:var(--teal-deep);line-height:1.6;
+  }
+
+  /* 提示框 */
+  .callout{border-radius:12px;padding:13px 16px;margin:14px 0;font-size:14px;max-width:760px;}
+  .callout .ct{display:flex;align-items:center;gap:7px;font-weight:700;margin-bottom:4px;}
+  .callout .ct svg{width:16px;height:16px;}
+  .tip{background:var(--teal-soft);border:1px solid #CFEDE3;}
+  .tip .ct{color:var(--teal-deep);}
+  .note{background:var(--amber-soft);border:1px solid #F2E2BE;}
+  .note .ct{color:var(--amber);}
+  .info{background:var(--blue-soft);border:1px solid #D8E6F6;}
+  .info .ct{color:#3A6FA0;}
+
+  /* 截圖 */
+  .fig{display:flex;flex-direction:column;align-items:center;margin:22px 0 8px;}
+  .fig img{width:min(300px,86%);border-radius:22px;box-shadow:0 14px 34px rgba(20,48,40,.16);border:6px solid #fff;}
+  .fig .cap{font-size:12.5px;color:var(--muted);margin-top:10px;letter-spacing:.3px;}
+  .fig .cap b{color:var(--ink-2);font-weight:600;}
+
+  /* 表 */
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px;max-width:760px;}
+  caption{caption-side:top;text-align:left;font-size:14px;font-weight:700;color:var(--ink);padding-bottom:6px;}
+  th,td{border:1px solid var(--line);padding:9px 12px;text-align:left;vertical-align:top;}
+  th{background:var(--teal-soft);color:var(--teal-deep);font-weight:700;white-space:nowrap;}
+
+  /* 底部小提醒 */
+  .tips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;max-width:760px;}
+  .tip-card{background:#fff;border:1px solid var(--line);border-radius:13px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;}
+  .tip-card .ic{width:34px;height:34px;border-radius:10px;background:var(--teal-soft);color:var(--teal-deep);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .tip-card .ic svg{width:18px;height:18px;}
+  .tip-card b{display:block;color:var(--ink);font-size:14.5px;margin-bottom:2px;}
+  .tip-card p{font-size:13px;color:var(--ink-2);}
+
+  footer{max-width:1080px;margin:0 auto;padding:0 22px 40px;color:var(--muted);font-size:12.5px;}
+  footer .line{border-top:1px solid var(--line);padding-top:16px;}
+
+  @media (max-width:840px){
+    .wrap{grid-template-columns:1fr;padding-top:18px;}
+    .toc{position:static;}
+    .toc-card{overflow-x:auto;}
+    .toc-list{display:flex;gap:6px;white-space:nowrap;padding-bottom:4px;}
+    .toc a{border-left:none;border-bottom:3px solid transparent;border-radius:9px;flex-shrink:0;}
+    .toc a.active{border-bottom-color:var(--teal);}
+    .tips-grid{grid-template-columns:1fr;}
+    h1{font-size:30px;}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="mast-inner">
+    <div class="brandline">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 7H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zm0 12H3v-5h4c0 1.66 1.34 3 3 3s3-1.34 3-3h8v5zm0-7h-8c0 1.66-1.34 3-3 3s-3-1.34-3-3H3V9h18v3z"/></svg>
+      記帳 App · 使用手冊
+    </div>
+    <h1>記帳 App 操作教學</h1>
+    <p class="sub">一步步帶你完成日常記帳與帳戶管理：設定銀行帳戶與存款、管理常用圖標、輸入收支、帳戶間轉帳，以及修改既有紀錄。</p>
+    <div class="chips">
+      <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3z"/></svg><b>5</b> 大功能</span>
+      <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 7H3c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2z"/></svg>銀行管理</span>
+      <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>常用圖標</span>
+      <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.99 11 3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>帳戶轉帳</span>
+      <span class="chip"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34a.9959.9959 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>收支編輯</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <nav class="toc" aria-label="目錄">
+    <div class="toc-card">
+      <div class="toc-title">本頁目錄</div>
+      <div class="toc-list" id="tocList">
+        <a href="#sec-1" class="active"><span class="no">01</span>銀行管理</a>
+        <a href="#sec-2"><span class="no">02</span>設定常用圖標</a>
+        <a href="#sec-3"><span class="no">03</span>輸入支出與收入</a>
+        <a href="#sec-4"><span class="no">04</span>銀行轉帳</a>
+        <a href="#sec-5"><span class="no">05</span>收支編輯</a>
+        <a href="#sec-tips"><span class="no">‧</span>小提醒</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="content">
+
+    <!-- ===== 01 銀行管理 ===== -->
+    <section id="sec-1">
+      <div class="sec-head"><span class="sec-num">01</span><h2 class="sec-title">銀行管理：設定存款與銀行帳戶</h2></div>
+      <p class="sec-intro">在「銀行管理」頁可以新增／刪除帳戶、設定各帳戶的起始存款，並查看每個帳戶目前的餘額與交易明細。</p>
+
+      <div class="subsec"><h3><span class="dot"></span>1.1 進入銀行管理</h3>
+        <p>點下方最右側（第四個）頁籤 <b>「銀行管理」</b>。</p>
+        <div class="fig"><img src="guide_bank_main.png" alt="銀行管理主頁預覽"><span class="cap"><b>銀行管理主頁</b> · 資產總計卡片、帳戶清單與新增帳戶</span></div>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>1.2 認識頁面</h3>
+        <ul class="plain">
+          <li>最上方為 <b>「資產總計」</b> 卡片：顯示所有帳戶合計的總資產、本月收支變動、帳戶數。</li>
+          <li>下方是帳戶清單，每個帳戶一張卡片，顯示 <b>帳戶名稱、起始存款、目前餘額</b>。</li>
+          <li><b>目前餘額 ＝ 起始存款 ＋ 收入 − 支出 ＋ 轉入 − 轉出</b>。</li>
+        </ul>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>1.3 新增銀行帳戶</h3>
+        <ol class="steps">
+          <li>捲到最下方「<b>新增帳戶</b>」卡片。</li>
+          <li>在「銀行／帳戶名稱」欄位輸入帳戶名稱（例如「台新銀行」「郵局」）。</li>
+          <li>點「<b>新增並儲存</b>」按鈕，帳戶即加入清單。</li>
+        </ol>
+        <div class="callout tip"><div class="ct"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2 4 5v6c0 5.55 3.84 10.74 8 12 4.16-1.26 8-6.45 8-12V5l-8-3z"/></svg>提示</div>點「新增並儲存」時，也會一併把你其他帳戶未儲存的修改存起來。</div>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>1.4 設定存款（起始存款）</h3>
+        <ul class="plain">
+          <li>點任一帳戶卡片內的「<b>起始存款</b>」欄位，輸入金額後點「<b>新增並儲存</b>」。</li>
+          <li>帳戶名稱與起始存款會儲存；「目前餘額」會依照收入／支出／轉帳自動增減。</li>
+        </ul>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>1.5 修改銀行帳戶名稱</h3>
+        <p>直接點銀行帳戶卡片上的名稱欄位即可修改文字，再點「新增並儲存」。</p>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>1.6 刪除銀行帳戶</h3>
+        <ol class="steps">
+          <li>點該銀行卡片右上角的<b>垃圾桶圖示</b>。</li>
+          <li>系統會跳出確認視窗，點「<b>刪除</b>」即移除。</li>
+          <li>若此帳戶已有交易紀錄，會提示「既有紀錄仍會保留，但改以『付款方式』顯示」。</li>
+        </ol>
+        <div class="callout note"><div class="ct"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>注意</div><b>「現金帳戶」是固定的</b>，名稱無法修改、也不能刪除（會顯示一個小鎖頭圖示）。</div>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>1.7 查看帳戶交易明細</h3>
+        <ul class="plain">
+          <li>點帳戶卡片下方的「<b>查看交易明細 ›</b>」（或點卡片標題列），進入該帳戶的明細頁。</li>
+          <li>明細頁顯示：目前餘額、起始存款，以及該帳戶的<b>收支紀錄</b>與<b>轉帳</b>（轉入顯示 <span class="kbd">+</span>、轉出顯示 <span class="kbd">-</span>），依日期排序。</li>
+          <li>明細頁內可透過每筆右側的選單（⋮）<b>刪除</b>該筆紀錄或轉帳。</li>
+        </ul>
+        <div class="fig"><img src="guide_bank_detail.png" alt="帳戶明細頁預覽"><span class="cap"><b>帳戶明細頁</b> · 目前餘額、起始存款與收支／轉帳清單</span></div>
+      </div>
+    </section>
+
+    <!-- ===== 02 圖標 ===== -->
+    <section id="sec-2">
+      <div class="sec-head"><span class="sec-num">02</span><h2 class="sec-title">設定常用圖標</h2></div>
+      <p class="sec-intro">「圖標」頁用來管理支出／收入頁上顯示的分類圖示，可顯示／隱藏、排序、新增與編輯自訂分類。</p>
+
+      <div class="subsec"><h3><span class="dot"></span>2.1 進入圖標設定</h3>
+        <p>點下方最後一個頁籤 <b>「圖標」</b>。</p>
+        <div class="fig"><img src="guide_icons.png" alt="圖標設定頁預覽"><span class="cap"><b>圖標設定頁</b> · 顯示／隱藏勾選與拖曳排序</span></div>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>2.2 切換支出／收入分類</h3>
+        <p>頁面上方有「<b>支出圖標</b>」與「<b>收入圖標</b>」兩個按鈕，點擊切換要管理的分類類型。</p>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>2.3 顯示／隱藏分類</h3>
+        <p>每個分類左側有<b>勾選框</b>：打勾＝在支出／收入頁的圖示清單中<b>顯示</b>；取消勾選＝<b>隱藏</b>（統計仍會保留，只是不顯示在輸入頁）。</p>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>2.4 調整順序（常用放前面）</h3>
+        <ul class="plain">
+          <li>每個分類右側有<b>拖曳把手（≡）</b>。按住並上下拖曳即可調整順序。</li>
+          <li>建議把<b>常用分類排在前面</b>，輸入時更容易點到。</li>
+        </ul>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>2.5 新增自訂分類</h3>
+        <ol class="steps">
+          <li>點「<b>新增分類</b>」按鈕。</li>
+          <li>在編輯頁：輸入<b>分類名稱</b>（最多 20 字）；點「<b>匯入圖片</b>」從電腦挑選圖片，或從下方「選擇內建圖示」挑一個內建圖示；在「<b>統計顏色</b>」挑一個顏色（用於統計圖與進度條）。</li>
+          <li>點「<b>儲存分類</b>」。</li>
+          <li>新分類會出現在「自訂分類」區塊，並自動加入支出／收入頁的圖示清單。</li>
+        </ol>
+        <div class="fig"><img src="guide_category_editor.png" alt="新增分類編輯頁預覽"><span class="cap"><b>新增分類編輯頁</b> · 名稱、匯入圖片／內建圖示與統計顏色</span></div>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>2.6 編輯／刪除自訂分類</h3>
+        <ul class="plain">
+          <li>點分類本身 → 進入編輯頁修改名稱／圖示／顏色。</li>
+          <li>點分類右側的 <b>⋮ 選單</b> → 選「編輯」或「刪除」。</li>
+        </ul>
+        <div class="callout info"><div class="ct"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>說明</div>內建分類只能顯示／隱藏與排序，不能改名或刪除；自訂分類才能編輯與刪除。刪除分類後，既有紀錄與統計仍會保留。</div>
+      </div>
+    </section>
+
+    <!-- ===== 03 輸入收支 ===== -->
+    <section id="sec-3">
+      <div class="sec-head"><span class="sec-num">03</span><h2 class="sec-title">輸入支出與收入</h2></div>
+      <p class="sec-intro">支出與收入的輸入方式完全相同，差別只在分類與正負。</p>
+
+      <div class="subsec"><h3><span class="dot"></span>3.1 進入支出／收入</h3>
+        <p>點下方 <b>「支出」</b> 頁籤輸入支出；點 <b>「收入」</b> 頁籤輸入收入。</p>
+        <div class="fig"><img src="guide_entry.png" alt="支出／收入輸入頁預覽"><span class="cap"><b>支出／收入輸入頁</b> · 分類、日期／付款方式膠囊與計算機鍵盤</span></div>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>3.2 選擇分類</h3>
+        <ul class="plain">
+          <li>畫面上方是分類圖示清單（即「圖標」頁設定顯示的分類）。</li>
+          <li>點一下要使用的分類（例如「餐點」），選中的分類會以藍色外框標示。</li>
+        </ul>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>3.3 設定日期</h3>
+        <ul class="plain">
+          <li>點上方「<b>日期</b>」膠囊（顯示如 <span class="kbd">10/04</span>，帶日曆圖示）。</li>
+          <li>在日期選擇器選好日期後按確定。</li>
+        </ul>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>3.4 選擇付款方式（記入哪個帳戶）</h3>
+        <ul class="plain">
+          <li>點「<b>付款方式</b>」膠囊，從下拉清單選擇帳戶（現金帳戶、各銀行帳戶）。</li>
+          <li>若未選擇，預設會記入<b>「現金帳戶」</b>。</li>
+          <li>此帳戶會決定該筆收支影響哪個帳戶的餘額。</li>
+        </ul>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>3.5 輸入金額（計算機鍵盤）</h3>
+        <ul class="plain">
+          <li>使用下方數字鍵盤輸入金額：數字鍵 <span class="kbd">0–9</span>、<span class="kbd">00</span>、小數點 <span class="kbd">.</span>。</li>
+          <li>運算子 <span class="kbd">+ − × ÷</span> 與 <span class="kbd">=</span>：可以輸入算式，例如 <span class="kbd">100 + 50 =</span> 會算出 <span class="kbd">150</span>。</li>
+          <li><span class="kbd">AC</span>＝全部清除、<span class="kbd">⌫</span>＝退格、<span class="kbd">=</span>＝計算。</li>
+          <li>金額顯示在最右側。</li>
+        </ul>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>3.6 完成輸入</h3>
+        <ul class="plain">
+          <li>點右下角綠色的 <span class="kbd">OK</span> 按鈕完成輸入。</li>
+          <li>會跳出「已記錄」的提示，這筆紀錄即加入，並同步更新所選帳戶的餘額與收支統計。</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== 04 轉帳 ===== -->
+    <section id="sec-4">
+      <div class="sec-head"><span class="sec-num">04</span><h2 class="sec-title">銀行轉帳功能</h2></div>
+      <p class="sec-intro">在多個帳戶之間移動金錢，例如從「現金」轉到「台新銀行」。</p>
+
+      <div class="subsec"><h3><span class="dot"></span>4.1 開啟轉帳</h3>
+        <ol class="steps">
+          <li>進入 <b>「銀行管理」</b> 頁籤。</li>
+          <li>點右上角的「<b>轉帳</b>」按鈕。</li>
+        </ol>
+        <div class="callout note"><div class="ct"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>前提</div>至少要有<b>兩個帳戶</b>才能轉帳（現金帳戶 + 至少一個銀行帳戶）。</div>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>4.2 填寫轉帳</h3>
+        <ol class="steps">
+          <li><b>從</b>：選擇轉出的帳戶（金額由此帳戶扣減）。</li>
+          <li><b>到</b>：選擇轉入的帳戶（金額加入此帳戶；系統會自動避免「從」與「到」相同）。</li>
+          <li><b>金額</b>：輸入要轉帳的金額。</li>
+          <li><b>日期</b>：可調整轉帳日期（預設今天）。</li>
+          <li>點「<b>轉帳</b>」完成。</li>
+        </ol>
+        <div class="fig"><img src="guide_transfer.png" alt="帳戶轉帳對話框預覽"><span class="cap"><b>帳戶轉帳對話框</b> · 從／到帳戶、金額與日期</span></div>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>4.3 轉帳後的影響</h3>
+        <ul class="plain">
+          <li>轉出帳戶的「目前餘額」<b>減少</b>；轉入帳戶的「目前餘額」<b>增加</b>。</li>
+          <li><b>不會</b>被計入收支統計的支出或收入（轉帳不屬於收支），因此不會影響「資產總計」與每月收支變動。</li>
+        </ul>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>4.4 查看與刪除轉帳</h3>
+        <ul class="plain">
+          <li>進入任一帳戶的「<b>查看交易明細</b>」，會看到標示「<b>轉入</b>」或「<b>轉出</b>」的紀錄（例如 <span class="kbd">轉入 · 來自 現金帳戶</span>）。</li>
+          <li>點該筆右側 <b>⋮ 選單</b> →「刪除轉帳」，可撤銷該筆轉帳（兩邊餘額會回復）。</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== 05 收支編輯 ===== -->
+    <section id="sec-5">
+      <div class="sec-head"><span class="sec-num">05</span><h2 class="sec-title">收支編輯功能</h2></div>
+
+      <div class="subsec"><h3><span class="dot"></span>5.1 進入紀錄清單</h3>
+        <ol class="steps">
+          <li>點下方 <b>「收支統計」</b> 頁籤。</li>
+          <li>點頁面頂部 <b>「紀錄」</b> 頁籤。</li>
+        </ol>
+        <div class="fig"><img src="guide_records.png" alt="收支統計紀錄清單預覽"><span class="cap"><b>收支統計紀錄清單</b> · 支出／收入切換與每筆 ⋮ 選單</span></div>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>5.2 篩選與瀏覽</h3>
+        <ul class="plain">
+          <li>可用「<b>支出／收入</b>」按鈕切換只看支出或收入。</li>
+          <li>可用上方日期範圍挑選，或點「<b>本月</b>」快速回到本月。</li>
+          <li>清單中每筆顯示：分類圖示、分類名稱、日期與所屬帳戶、金額（收入綠色 <span class="kbd">+</span>、支出紅色 <span class="kbd">-</span>）。</li>
+        </ul>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>5.3 編輯紀錄</h3>
+        <ol class="steps">
+          <li>點該筆紀錄右側的 <b>⋮ 選單</b> → 選「<b>編輯</b>」。</li>
+          <li>在編輯對話框可修改：<b>分類</b>（支出／收入分類下拉）、<b>帳戶</b>（付款方式，改動會影響餘額歸屬）、<b>金額</b>、<b>日期</b>。</li>
+          <li>點「<b>儲存</b>」完成修改，統計與帳戶餘額會同步更新。</li>
+        </ol>
+        <div class="fig"><img src="guide_edit.png" alt="編輯紀錄對話框預覽"><span class="cap"><b>編輯紀錄對話框</b> · 修改分類、帳戶、金額與日期</span></div>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>5.4 刪除紀錄</h3>
+        <ol class="steps">
+          <li>點該筆紀錄右側的 <b>⋮ 選單</b> → 選「<b>刪除</b>」。</li>
+          <li>跳出確認視窗後點「<b>刪除</b>」，該筆紀錄即移除，帳戶餘額與統計同步還原。</li>
+        </ol>
+      </div>
+
+      <div class="subsec"><h3><span class="dot"></span>5.5 其他編輯入口</h3>
+        <ul class="plain">
+          <li>在「銀行管理 → 查看交易明細」的明細頁，也可對該帳戶的收支紀錄與轉帳進行<b>刪除</b>。</li>
+          <li>收支的<b>完整編輯</b>（分類、帳戶、金額、日期）以「收支統計 → 紀錄」為主要入口。</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===== 小提醒 ===== -->
+    <section id="sec-tips">
+      <div class="sec-head"><span class="sec-num">‧</span><h2 class="sec-title">小提醒</h2></div>
+      <div class="tips-grid">
+        <div class="tip-card"><div class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25z"/></svg></div><div><b>餘額自動計算</b><p>各帳戶的「目前餘額」會隨收支與轉帳自動增減，不需手動改（起始存款除外）。</p></div></div>
+        <div class="tip-card"><div class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 4H5c-1.11 0-2 .9-2 2v12c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H5V6h14v12zM8 9h8v2H8zm0 3h8v2H8z"/></svg></div><div><b>資料自動儲存</b><p>新增／編輯／刪除收支、轉帳、帳戶，皆會自動儲存，重開 App 仍會保留。</p></div></div>
+        <div class="tip-card"><div class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zM9 8V6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9z"/></svg></div><div><b>現金帳戶固定</b><p>不可改名、不可刪除，用以確保永遠有至少一個付款方式。</p></div></div>
+        <div class="tip-card"><div class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.99 11 3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg></div><div><b>轉帳不影響統計</b><p>帳戶間移轉金錢不會被當成收入或支出。</p></div></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer><div class="line">記帳 App 操作教學 · 本頁為操作說明文件，各畫面為示意預覽圖，實際以 App 畫面為準。</div></footer>
+
+<script>
+  // 目錄 active 高亮
+  var links = Array.prototype.slice.call(document.querySelectorAll('#tocList a'));
+  var secs = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  var ticking = false;
+  function onScroll(){
+    if(ticking) return;
+    ticking = true;
+    requestAnimationFrame(function(){
+      var pos = window.scrollY + 120;
+      var idx = 0;
+      for(var i=0;i<secs.length;i++){
+        if(secs[i] && secs[i].offsetTop <= pos) idx = i;
+      }
+      for(var j=0;j<links.length;j++){
+        links[j].classList.toggle('active', j===idx);
+      }
+      ticking = false;
+    });
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+</script>
+</body>
+</html>
