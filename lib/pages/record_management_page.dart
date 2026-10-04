@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 import '../models/category_item.dart';
+import '../models/ledger_account.dart';
 import '../models/transaction_record.dart';
 import '../widgets/category_icon.dart';
 
@@ -11,29 +12,40 @@ class RecordManagementPage extends StatefulWidget {
     required this.records,
     required this.expenseCategories,
     required this.incomeCategories,
+    required this.accounts,
     required this.onUpdated,
     required this.onDeleted,
+    this.embedded = false,
   });
 
   final List<TransactionRecord> records;
   final List<CategoryItem> expenseCategories;
   final List<CategoryItem> incomeCategories;
+  final List<LedgerAccount> accounts;
   final void Function(int index, TransactionRecord record) onUpdated;
   final ValueChanged<int> onDeleted;
+  final bool embedded;
 
   @override
   State<RecordManagementPage> createState() => _RecordManagementPageState();
 }
 
 class _RecordManagementPageState extends State<RecordManagementPage> {
-  final _search = TextEditingController();
-  DateTimeRange? _range;
-  bool? _income;
+  late DateTimeRange _range;
+  bool _showIncome = false;
+
+  DateTimeRange _currentMonth() {
+    final now = DateTime.now();
+    return DateTimeRange(
+      start: DateTime(now.year, now.month, 1),
+      end: DateTime(now.year, now.month + 1, 0),
+    );
+  }
 
   @override
-  void dispose() {
-    _search.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+    _range = _currentMonth();
   }
 
   String _date(DateTime value) =>
@@ -42,6 +54,13 @@ class _RecordManagementPageState extends State<RecordManagementPage> {
   String _money(double value) {
     final digits = value.toStringAsFixed(0);
     return 'NT\$ ${digits.replaceAllMapped(RegExp(r'(?<!^)(?=(\d{3})+$)'), (_) => ',')}';
+  }
+
+  String _accountName(String id) {
+    for (final account in widget.accounts) {
+      if (account.id == id) return account.name;
+    }
+    return '付款方式';
   }
 
   Future<void> _pickRange() async {
@@ -69,6 +88,10 @@ class _RecordManagementPageState extends State<RecordManagementPage> {
         record.category,
     ];
     var categoryId = record.category.id;
+    var accountId =
+        widget.accounts.any((account) => account.id == record.accountId)
+        ? record.accountId
+        : widget.accounts.first.id;
     var date = record.date;
     final saved = await showDialog<bool>(
       context: context,
@@ -90,6 +113,19 @@ class _RecordManagementPageState extends State<RecordManagementPage> {
                     )
                     .toList(),
                 onChanged: (value) => setDialogState(() => categoryId = value!),
+              ),
+              DropdownButtonFormField<String>(
+                initialValue: accountId,
+                decoration: const InputDecoration(labelText: '帳戶'),
+                items: widget.accounts
+                    .map(
+                      (account) => DropdownMenuItem(
+                        value: account.id,
+                        child: Text(account.name),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) => setDialogState(() => accountId = value!),
               ),
               TextField(
                 controller: amount,
@@ -132,7 +168,12 @@ class _RecordManagementPageState extends State<RecordManagementPage> {
     final category = choices.firstWhere((item) => item.id == categoryId);
     widget.onUpdated(
       index,
-      record.copyWith(category: category, amount: parsed, date: date),
+      record.copyWith(
+        category: category,
+        amount: parsed,
+        date: date,
+        accountId: accountId,
+      ),
     );
   }
 
@@ -161,58 +202,56 @@ class _RecordManagementPageState extends State<RecordManagementPage> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final query = _search.text.trim().toLowerCase();
     final entries = widget.records.asMap().entries.where((entry) {
       final record = entry.value;
       final day = DateUtils.dateOnly(record.date);
-      return (_income == null || record.isIncome == _income) &&
-          (_range == null ||
-              (!day.isBefore(_range!.start) && !day.isAfter(_range!.end))) &&
-          (query.isEmpty ||
-              record.category.label.toLowerCase().contains(query));
+      return record.isIncome == _showIncome &&
+          !day.isBefore(_range.start) &&
+          !day.isAfter(_range.end);
     }).toList()..sort((a, b) => b.value.date.compareTo(a.value.date));
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.recordManagement), centerTitle: true),
+      appBar: widget.embedded
+          ? null
+          : AppBar(
+              title: Text(l10n.recordManagement),
+              centerTitle: true,
+              actions: const [],
+            ),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(12),
-            child: TextField(
-              controller: _search,
-              onChanged: (_) => setState(() {}),
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
-                labelText: l10n.searchRecords,
-              ),
+            child: SegmentedButton<bool>(
+              segments: [
+                ButtonSegment(value: false, label: Text(l10n.expense)),
+                ButtonSegment(value: true, label: Text(l10n.income)),
+              ],
+              selected: {_showIncome},
+              onSelectionChanged: (selection) =>
+                  setState(() => _showIncome = selection.first),
             ),
           ),
-          Wrap(
-            spacing: 8,
-            children: [
-              ChoiceChip(
-                label: Text(l10n.all),
-                selected: _income == null,
-                onSelected: (_) => setState(() => _income = null),
-              ),
-              ChoiceChip(
-                label: Text(l10n.expense),
-                selected: _income == false,
-                onSelected: (_) => setState(() => _income = false),
-              ),
-              ChoiceChip(
-                label: Text(l10n.income),
-                selected: _income == true,
-                onSelected: (_) => setState(() => _income = true),
-              ),
-              ActionChip(
-                label: Text(
-                  _range == null
-                      ? l10n.allDates
-                      : '${_date(_range!.start)} - ${_date(_range!.end)}',
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Flexible(
+                  child: TextButton.icon(
+                    onPressed: _pickRange,
+                    icon: const Icon(Icons.date_range, size: 20),
+                    label: Text(
+                      '${_date(_range.start)} - ${_date(_range.end)}',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
                 ),
-                onPressed: _pickRange,
-              ),
-            ],
+                TextButton(
+                  onPressed: () => setState(() => _range = _currentMonth()),
+                  child: Text(l10n.thisMonth),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
           Expanded(
@@ -227,7 +266,9 @@ class _RecordManagementPageState extends State<RecordManagementPage> {
                       return ListTile(
                         leading: CategoryIcon(category: record.category),
                         title: Text(record.category.label),
-                        subtitle: Text(_date(record.date)),
+                        subtitle: Text(
+                          '${_date(record.date)} · ${_accountName(record.accountId)}',
+                        ),
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [

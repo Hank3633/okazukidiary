@@ -4,6 +4,7 @@ import '../widgets/category_icon.dart';
 import '../l10n/app_localizations.dart';
 
 import '../models/category_item.dart';
+import '../models/ledger_account.dart';
 import '../models/transaction_record.dart';
 
 class RecordPage extends StatefulWidget {
@@ -13,12 +14,14 @@ class RecordPage extends StatefulWidget {
     required this.transactionName,
     required this.isIncome,
     required this.onRecorded,
+    required this.accounts,
   });
 
   final List<CategoryItem> categories;
   final String transactionName;
   final bool isIncome;
   final ValueChanged<TransactionRecord> onRecorded;
+  final List<LedgerAccount> accounts;
 
   @override
   State<RecordPage> createState() => _RecordPageState();
@@ -27,12 +30,17 @@ class RecordPage extends StatefulWidget {
 class _RecordPageState extends State<RecordPage> {
   static const _categoryIconSize = 36.0;
   int _selectedCategory = 0;
+  String? _accountId;
   @override
   void didUpdateWidget(covariant RecordPage oldWidget) {
     super.didUpdateWidget(oldWidget);
     final path = oldWidget.categories[_selectedCategory].id;
     final index = widget.categories.indexWhere((c) => c.id == path);
     _selectedCategory = index < 0 ? 0 : index;
+    if (_accountId != null &&
+        !widget.accounts.any((account) => account.id == _accountId)) {
+      _accountId = null;
+    }
   }
 
   DateTime _selectedDate = DateUtils.dateOnly(DateTime.now());
@@ -62,6 +70,7 @@ class _RecordPageState extends State<RecordPage> {
         amount: amount,
         isIncome: widget.isIncome,
         date: _selectedDate,
+        accountId: _accountId ?? 'cash',
       );
 
       setState(() {
@@ -275,6 +284,23 @@ class _RecordPageState extends State<RecordPage> {
                     ),
                   ],
                 ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _accountId,
+                isDense: true,
+                hint: const Text('付款方式'),
+                items: widget.accounts
+                    .map(
+                      (account) => DropdownMenuItem(
+                        value: account.id,
+                        child: Text(account.name),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) => setState(() => _accountId = value),
               ),
             ),
             const Spacer(),

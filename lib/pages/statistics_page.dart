@@ -5,16 +5,23 @@ import '../l10n/app_localizations.dart';
 import '../models/transaction_record.dart';
 import '../widgets/pie_chart.dart';
 import '../widgets/category_icon.dart';
+import 'record_management_page.dart';
 
 class StatisticsPage extends StatefulWidget {
-  const StatisticsPage({super.key, required this.records});
+  const StatisticsPage({
+    super.key,
+    required this.records,
+    required this.recordManagement,
+  });
   final List<TransactionRecord> records;
+  final RecordManagementPage recordManagement;
   @override
   State<StatisticsPage> createState() => _StatisticsPageState();
 }
 
 class _StatisticsPageState extends State<StatisticsPage> {
   bool _showIncome = false;
+  int _tab = 0;
   late DateTimeRange _dateRange;
 
   DateTimeRange _currentMonth() {
@@ -72,105 +79,117 @@ class _StatisticsPageState extends State<StatisticsPage> {
     final rows = totals.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final total = rows.fold<double>(0, (sum, e) => sum + e.value);
-    return Scaffold(
-      appBar: AppBar(title: Text(l10n.statistics), centerTitle: true),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(12),
-            child: SegmentedButton<bool>(
-              segments: [
-                ButtonSegment(value: false, label: Text(l10n.expense)),
-                ButtonSegment(value: true, label: Text(l10n.income)),
-              ],
-              selected: {_showIncome},
-              onSelectionChanged: (v) => setState(() => _showIncome = v.first),
-            ),
+    return DefaultTabController(
+      length: 3,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.statistics),
+          centerTitle: true,
+          bottom: TabBar(
+            onTap: (index) => setState(() {
+              _tab = index;
+              _showIncome = index == 1;
+            }),
+            tabs: [
+              Tab(text: l10n.expense),
+              Tab(text: l10n.income),
+              const Tab(text: '紀錄'),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Flexible(
-                  child: TextButton.icon(
-                    onPressed: _selectDateRange,
-                    icon: const Icon(Icons.date_range, size: 20),
-                    label: Text(
-                      '${_formatDate(_dateRange.start)} ～ ${_formatDate(_dateRange.end)}',
-                      textAlign: TextAlign.center,
+        ),
+        body: _tab == 2
+            ? widget.recordManagement
+            : Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Flexible(
+                          child: TextButton.icon(
+                            onPressed: _selectDateRange,
+                            icon: const Icon(Icons.date_range, size: 20),
+                            label: Text(
+                              '${_formatDate(_dateRange.start)} ～ ${_formatDate(_dateRange.end)}',
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () =>
+                              setState(() => _dateRange = _currentMonth()),
+                          child: Text(l10n.thisMonth),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-                TextButton(
-                  onPressed: () => setState(() => _dateRange = _currentMonth()),
-                  child: Text(l10n.thisMonth),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          SizedBox(
-            height: 190,
-            child: total == 0
-                ? Center(child: Text(l10n.noRecords))
-                : Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      CustomPaint(
-                        size: const Size(190, 190),
-                        painter: PieChartPainter(
-                          rows.map((e) => e.value).toList(),
-                          rows.map((e) => items[e.key]!.color).toList(),
-                        ),
-                      ),
-                      ClipOval(
-                        child: Image.asset(
-                          'assets/images/branding/desktop_icon.png',
-                          width: 62,
-                          height: 62,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 190,
+                    child: total == 0
+                        ? Center(child: Text(l10n.noRecords))
+                        : Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              CustomPaint(
+                                size: const Size(190, 190),
+                                painter: PieChartPainter(
+                                  rows.map((e) => e.value).toList(),
+                                  rows.map((e) => items[e.key]!.color).toList(),
+                                ),
+                              ),
+                              ClipOval(
+                                child: Image.asset(
+                                  'assets/images/branding/desktop_icon.png',
+                                  width: 62,
+                                  height: 62,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ],
+                          ),
                   ),
-          ),
-          Align(
-            alignment: Alignment.centerRight,
-            child: Padding(
-              padding: const EdgeInsets.only(right: 24),
-              child: Text(l10n.total(_formatCurrency(total))),
-            ),
-          ),
-          const Divider(),
-          Expanded(
-            child: ListView.separated(
-              itemCount: rows.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
-              itemBuilder: (context, i) {
-                final e = rows[i];
-                final c = items[e.key]!;
-                final p = e.value / total;
-                return ListTile(
-                  leading: CategoryIcon(category: c),
-                  title: Text('${c.label}  ${(p * 100).toStringAsFixed(1)}%'),
-                  subtitle: LinearProgressIndicator(
-                    value: p,
-                    color: c.color,
-                    backgroundColor: const Color(0xFFECECEC),
-                  ),
-                  trailing: Text(
-                    '${_showIncome ? '+' : '-'} ${_formatCurrency(e.value)}',
-                    style: TextStyle(
-                      color: _showIncome ? Colors.green : Colors.red,
-                      fontWeight: FontWeight.bold,
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 24),
+                      child: Text(l10n.total(_formatCurrency(total))),
                     ),
                   ),
-                );
-              },
-            ),
-          ),
-        ],
+                  const Divider(),
+                  Expanded(
+                    child: ListView.separated(
+                      itemCount: rows.length,
+                      separatorBuilder: (context, index) =>
+                          const Divider(height: 1),
+                      itemBuilder: (context, i) {
+                        final e = rows[i];
+                        final c = items[e.key]!;
+                        final p = e.value / total;
+                        return ListTile(
+                          leading: CategoryIcon(category: c),
+                          title: Text(
+                            '${c.label}  ${(p * 100).toStringAsFixed(1)}%',
+                          ),
+                          subtitle: LinearProgressIndicator(
+                            value: p,
+                            color: c.color,
+                            backgroundColor: const Color(0xFFECECEC),
+                          ),
+                          trailing: Text(
+                            '${_showIncome ? '+' : '-'} ${_formatCurrency(e.value)}',
+                            style: TextStyle(
+                              color: _showIncome ? Colors.green : Colors.red,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }

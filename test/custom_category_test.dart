@@ -54,6 +54,7 @@ void main() {
       amount: 1250.5,
       isIncome: false,
       date: DateTime(2026, 10, 3),
+      accountId: 'bank',
     );
 
     final restored = TransactionRecord.fromJson(record.toJson());
@@ -62,6 +63,7 @@ void main() {
     expect(restored.amount, 1250.5);
     expect(restored.isIncome, isFalse);
     expect(restored.date, DateTime(2026, 10, 3));
+    expect(restored.accountId, 'bank');
   });
 
   test('向下拖曳分類會插入目標位置，而非下一格', () {

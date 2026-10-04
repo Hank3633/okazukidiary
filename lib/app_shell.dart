@@ -7,11 +7,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'data/categories.dart';
 import 'l10n/app_localizations.dart';
 import 'models/category_item.dart';
+import 'models/ledger_account.dart';
 import 'models/transaction_record.dart';
 import 'pages/record_page.dart';
 import 'pages/statistics_page.dart';
 import 'pages/icon_settings_page.dart';
 import 'pages/record_management_page.dart';
+import 'pages/account_management_page.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -28,6 +30,33 @@ class _MainShellState extends State<MainShell> {
   SharedPreferences? _preferences;
   List<CategoryItem> _expenseOrder = List.of(expenseCategories);
   List<CategoryItem> _incomeOrder = List.of(incomeCategories);
+  List<LedgerAccount> _accounts = const [
+    LedgerAccount(id: 'cash', name: '現金付款'),
+    LedgerAccount(id: 'bank', name: '銀行付款'),
+  ];
+
+  List<LedgerAccount> _readAccounts(SharedPreferences prefs) {
+    try {
+      final values =
+          jsonDecode(prefs.getString('ledger_accounts') ?? '[]') as List;
+      final accounts = values
+          .map(
+            (value) =>
+                LedgerAccount.fromJson(Map<String, dynamic>.from(value as Map)),
+          )
+          .map(
+            (account) => switch (account.id) {
+              'cash' => account.copyWith(name: '現金付款'),
+              'bank' => account.copyWith(name: '銀行付款'),
+              _ => account,
+            },
+          )
+          .toList();
+      return accounts.isEmpty ? _accounts : accounts;
+    } catch (_) {
+      return _accounts;
+    }
+  }
 
   List<CategoryItem> _restoreOrder(
     List<CategoryItem> defaults,
@@ -140,6 +169,7 @@ class _MainShellState extends State<MainShell> {
         ...incomeCategories,
         ..._readCustom(preferences, 'custom_income'),
       ], preferences.getStringList('income_order'));
+      _accounts = _readAccounts(preferences);
       _records
         ..clear()
         ..addAll(_readRecords(preferences));
@@ -180,6 +210,10 @@ class _MainShellState extends State<MainShell> {
       ),
     );
     await preferences.setString(
+      'ledger_accounts',
+      jsonEncode(_accounts.map((account) => account.toJson()).toList()),
+    );
+    await preferences.setString(
       'transaction_records',
       jsonEncode(_records.map((record) => record.toJson()).toList()),
     );
@@ -215,6 +249,7 @@ class _MainShellState extends State<MainShell> {
             transactionName: l10n.expense,
             isIncome: false,
             onRecorded: _addRecord,
+            accounts: _accounts,
           ),
           RecordPage(
             categories: _incomeOrder
@@ -223,14 +258,25 @@ class _MainShellState extends State<MainShell> {
             transactionName: l10n.income,
             isIncome: true,
             onRecorded: _addRecord,
+            accounts: _accounts,
           ),
-          StatisticsPage(records: _records),
-          RecordManagementPage(
+          StatisticsPage(
             records: _records,
-            expenseCategories: _expenseOrder,
-            incomeCategories: _incomeOrder,
-            onUpdated: _updateRecord,
-            onDeleted: _deleteRecord,
+            recordManagement: RecordManagementPage(
+              records: _records,
+              expenseCategories: _expenseOrder,
+              incomeCategories: _incomeOrder,
+              accounts: _accounts,
+              onUpdated: _updateRecord,
+              onDeleted: _deleteRecord,
+              embedded: true,
+            ),
+          ),
+          AccountManagementPage(
+            accounts: _accounts,
+            records: _records,
+            onSaved: _saveAccounts,
+            closeOnSave: false,
           ),
           IconSizeSettingsPage(
             hiddenExpenses: _hiddenExpenses,
@@ -263,9 +309,9 @@ class _MainShellState extends State<MainShell> {
             icon: const Icon(Icons.bar_chart),
             label: l10n.statistics,
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.list_alt),
-            label: l10n.recordManagement,
+          const BottomNavigationBarItem(
+            icon: Icon(Icons.account_balance),
+            label: '銀行管理',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.apps),
@@ -288,6 +334,11 @@ class _MainShellState extends State<MainShell> {
 
   void _deleteRecord(int index) {
     setState(() => _records.removeAt(index));
+    _savePreferences();
+  }
+
+  void _saveAccounts(List<LedgerAccount> accounts) {
+    setState(() => _accounts = accounts);
     _savePreferences();
   }
 }
