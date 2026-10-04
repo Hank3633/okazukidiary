@@ -141,6 +141,15 @@ class AppLocalizationsEn extends AppLocalizations {
       'Check to show categories; drag the handle to reorder them.';
 
   @override
+  String get builtInCategories => 'Built-in Categories';
+
+  @override
+  String get customCategories => 'Custom Categories';
+
+  @override
+  String get noCustomCategories => 'No custom categories yet.';
+
+  @override
   String get dragToReorder => 'Drag to reorder';
 
   @override

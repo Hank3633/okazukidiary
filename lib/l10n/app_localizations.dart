@@ -347,6 +347,24 @@ abstract class AppLocalizations {
   /// **'勾選顯示分類；拖曳右側把手調整順序。'**
   String get showAndReorderHint;
 
+  /// No description provided for @builtInCategories.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'內建分類'**
+  String get builtInCategories;
+
+  /// No description provided for @customCategories.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'自訂分類'**
+  String get customCategories;
+
+  /// No description provided for @noCustomCategories.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'尚無自訂分類。'**
+  String get noCustomCategories;
+
   /// No description provided for @dragToReorder.
   ///
   /// In zh_TW, this message translates to:

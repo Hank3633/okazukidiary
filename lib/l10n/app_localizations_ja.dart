@@ -137,6 +137,15 @@ class AppLocalizationsJa extends AppLocalizations {
   String get showAndReorderHint => 'チェックで表示、右のハンドルをドラッグして並べ替えます。';
 
   @override
+  String get builtInCategories => '標準カテゴリー';
+
+  @override
+  String get customCategories => 'カスタムカテゴリー';
+
+  @override
+  String get noCustomCategories => 'カスタムカテゴリーはまだありません。';
+
+  @override
   String get dragToReorder => 'ドラッグして並べ替え';
 
   @override

@@ -54,6 +54,36 @@ class _RecordPageState extends State<RecordPage> {
   bool _justCalculated = false;
 
   void _onKey(String key) {
+    if (key == 'done') {
+      final amount = _evaluateExpression(_display) ?? 0;
+      if (amount <= 0) return;
+      final record = TransactionRecord(
+        category: widget.categories[_selectedCategory],
+        amount: amount,
+        isIncome: widget.isIncome,
+        date: _selectedDate,
+      );
+
+      setState(() {
+        _display = '0';
+        _waitingForSecond = false;
+        _justCalculated = false;
+      });
+      widget.onRecorded(record);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.recordSaved(
+              '${widget.transactionName}・${record.category.label}',
+              _formatNumber(amount),
+            ),
+          ),
+        ),
+      );
+      return;
+    }
+
     setState(() {
       if (RegExp(r'^[0-9.]$').hasMatch(key) || key == '00') {
         if (_justCalculated) {
@@ -124,32 +154,6 @@ class _RecordPageState extends State<RecordPage> {
           if (_display.isEmpty) _display = '0';
         }
         return;
-      }
-
-      if (key == 'done') {
-        final amount = _evaluateExpression(_display) ?? 0;
-        if (amount <= 0) return;
-        widget.onRecorded(
-          TransactionRecord(
-            category: widget.categories[_selectedCategory],
-            amount: amount,
-            isIncome: widget.isIncome,
-            date: _selectedDate,
-          ),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.recordSaved(
-                '${widget.transactionName}・${widget.categories[_selectedCategory].label}',
-                _formatNumber(amount),
-              ),
-            ),
-          ),
-        );
-        _display = '0';
-        _waitingForSecond = false;
-        _justCalculated = false;
       }
     });
   }
@@ -245,41 +249,51 @@ class _RecordPageState extends State<RecordPage> {
         color: Color(0xFFFAFAFA),
         border: Border(bottom: BorderSide(color: Color(0xFFEEEEEE))),
       ),
-      child: Row(
-        children: [
-          InkWell(
-            onTap: _selectDate,
-            borderRadius: BorderRadius.circular(8),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.access_time, size: 20, color: Colors.grey),
-                  const SizedBox(width: 6),
-                  Text(
-                    '${_selectedDate.month}/${_selectedDate.day}',
-                    style: TextStyle(fontSize: 15, color: Colors.grey.shade600),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const Spacer(),
-          Flexible(
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: Alignment.centerRight,
-              child: Text(
-                _display,
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
+      child: LayoutBuilder(
+        builder: (context, constraints) => Row(
+          children: [
+            InkWell(
+              onTap: _selectDate,
+              borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(
+                      Icons.calendar_today_outlined,
+                      size: 20,
+                      color: Colors.grey,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      '${_selectedDate.month}/${_selectedDate.day}',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
-        ],
+            const Spacer(),
+            SizedBox(
+              width: constraints.maxWidth / 5,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.center,
+                child: Text(
+                  _display,
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

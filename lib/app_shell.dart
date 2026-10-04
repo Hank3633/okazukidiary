@@ -41,12 +41,7 @@ class _MainShellState extends State<MainShell> {
     ];
   }
 
-  void _reorderGroup(
-    bool income,
-    bool custom,
-    int oldIndex,
-    int newIndex,
-  ) {
+  void _reorderGroup(bool income, bool custom, int oldIndex, int newIndex) {
     setState(() {
       final categories = income ? _incomeOrder : _expenseOrder;
       final builtIn = categories
@@ -56,7 +51,6 @@ class _MainShellState extends State<MainShell> {
           .where((category) => category.isCustom)
           .toList();
       final group = custom ? customCategories : builtIn;
-      if (oldIndex < newIndex) newIndex -= 1;
       group.insert(newIndex, group.removeAt(oldIndex));
 
       categories

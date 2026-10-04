@@ -109,25 +109,23 @@ class _IconSizeSettingsPageState extends State<IconSizeSettingsPage> {
             const SizedBox(height: 20),
             _section(
               title: l10n.builtInCategories,
-              categories: (_showIncome
-                      ? widget.incomeOrder
-                      : widget.expenseOrder)
-                  .where((category) => !category.isCustom)
-                  .toList(),
-              _showIncome ? widget.hiddenIncome : widget.hiddenExpenses,
-              _showIncome,
+              categories:
+                  (_showIncome ? widget.incomeOrder : widget.expenseOrder)
+                      .where((category) => !category.isCustom)
+                      .toList(),
+              hidden: _showIncome ? widget.hiddenIncome : widget.hiddenExpenses,
+              income: _showIncome,
               custom: false,
             ),
             const SizedBox(height: 24),
             _section(
               title: l10n.customCategories,
-              categories: (_showIncome
-                      ? widget.incomeOrder
-                      : widget.expenseOrder)
-                  .where((category) => category.isCustom)
-                  .toList(),
-              _showIncome ? widget.hiddenIncome : widget.hiddenExpenses,
-              _showIncome,
+              categories:
+                  (_showIncome ? widget.incomeOrder : widget.expenseOrder)
+                      .where((category) => category.isCustom)
+                      .toList(),
+              hidden: _showIncome ? widget.hiddenIncome : widget.hiddenExpenses,
+              income: _showIncome,
               custom: true,
             ),
           ],
@@ -163,7 +161,7 @@ class _IconSizeSettingsPageState extends State<IconSizeSettingsPage> {
           physics: const NeverScrollableScrollPhysics(),
           buildDefaultDragHandles: false,
           itemCount: categories.length,
-          onReorder: (oldIndex, newIndex) =>
+          onReorderItem: (oldIndex, newIndex) =>
               widget.onReorderGroup(income, custom, oldIndex, newIndex),
           itemBuilder: (context, index) {
             final category = categories[index];

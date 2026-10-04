@@ -137,6 +137,15 @@ class AppLocalizationsZh extends AppLocalizations {
   String get showAndReorderHint => '勾選顯示分類；拖曳右側把手調整順序。';
 
   @override
+  String get builtInCategories => '內建分類';
+
+  @override
+  String get customCategories => '自訂分類';
+
+  @override
+  String get noCustomCategories => '尚無自訂分類。';
+
+  @override
   String get dragToReorder => '拖曳排序';
 
   @override
@@ -317,6 +326,15 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get showAndReorderHint => '勾選顯示分類；拖曳右側把手調整順序。';
+
+  @override
+  String get builtInCategories => '內建分類';
+
+  @override
+  String get customCategories => '自訂分類';
+
+  @override
+  String get noCustomCategories => '尚無自訂分類。';
 
   @override
   String get dragToReorder => '拖曳排序';
