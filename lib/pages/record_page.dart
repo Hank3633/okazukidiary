@@ -252,6 +252,14 @@ class _RecordPageState extends State<RecordPage> {
   }
 
   Widget _buildDateAmountRow() {
+    LedgerAccount? selectedAccount;
+    for (final account in widget.accounts) {
+      if (account.id == (_accountId ?? 'cash')) {
+        selectedAccount = account;
+        break;
+      }
+    }
+    final paymentLabel = selectedAccount?.name ?? '付款方式';
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: const BoxDecoration(
@@ -261,49 +269,106 @@ class _RecordPageState extends State<RecordPage> {
       child: LayoutBuilder(
         builder: (context, constraints) => Row(
           children: [
-            InkWell(
-              onTap: _selectDate,
-              borderRadius: BorderRadius.circular(8),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(
-                      Icons.calendar_today_outlined,
-                      size: 20,
-                      color: Colors.grey,
+            Expanded(
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: constraints.maxWidth * 0.72,
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0F4F3),
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        InkWell(
+                          onTap: _selectDate,
+                          borderRadius: BorderRadius.circular(18),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 9),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.calendar_today_outlined,
+                                  size: 15,
+                                  color: Color(0xFF26C6A0),
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  '${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.day.toString().padLeft(2, '0')}',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF344744),
+                                  ),
+                                ),
+                                const Icon(
+                                  Icons.keyboard_arrow_down,
+                                  size: 16,
+                                  color: Color(0xFF8BA09A),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 1,
+                          height: 22,
+                          margin: const EdgeInsets.symmetric(horizontal: 8),
+                          color: const Color(0xFFDDE6E3),
+                        ),
+                        SizedBox(
+                          width: 108,
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              value: _accountId,
+                              isDense: true,
+                              isExpanded: true,
+                              menuMaxHeight: 240,
+                              icon: const Icon(
+                                Icons.keyboard_arrow_down,
+                                size: 16,
+                                color: Color(0xFF8BA09A),
+                              ),
+                              hint: Text(
+                                paymentLabel,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w600,
+                                  color: Color(0xFF344744),
+                                ),
+                              ),
+                              items: widget.accounts
+                                  .map(
+                                    (account) => DropdownMenuItem(
+                                      value: account.id,
+                                      child: Text(
+                                        account.name,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (value) =>
+                                  setState(() => _accountId = value),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 6),
-                    Text(
-                      '${_selectedDate.month}/${_selectedDate.day}',
-                      style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
-            DropdownButtonHideUnderline(
-              child: DropdownButton<String>(
-                value: _accountId,
-                isDense: true,
-                hint: const Text('付款方式'),
-                items: widget.accounts
-                    .map(
-                      (account) => DropdownMenuItem(
-                        value: account.id,
-                        child: Text(account.name),
-                      ),
-                    )
-                    .toList(),
-                onChanged: (value) => setState(() => _accountId = value),
-              ),
-            ),
-            const Spacer(),
             SizedBox(
               width: constraints.maxWidth / 5,
               child: FittedBox(

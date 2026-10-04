@@ -9,6 +9,7 @@ import 'l10n/app_localizations.dart';
 import 'models/category_item.dart';
 import 'models/ledger_account.dart';
 import 'models/transaction_record.dart';
+import 'models/account_transfer.dart';
 import 'pages/record_page.dart';
 import 'pages/statistics_page.dart';
 import 'pages/icon_settings_page.dart';
@@ -25,34 +26,37 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
   final List<TransactionRecord> _records = [];
+  List<AccountTransfer> _transfers = [];
   Set<String> _hiddenExpenses = {};
   Set<String> _hiddenIncome = {};
   SharedPreferences? _preferences;
   List<CategoryItem> _expenseOrder = List.of(expenseCategories);
   List<CategoryItem> _incomeOrder = List.of(incomeCategories);
   List<LedgerAccount> _accounts = const [
-    LedgerAccount(id: 'cash', name: '現金付款'),
-    LedgerAccount(id: 'bank', name: '銀行付款'),
+    LedgerAccount(id: 'cash', name: '現金帳戶'),
   ];
 
   List<LedgerAccount> _readAccounts(SharedPreferences prefs) {
     try {
       final values =
           jsonDecode(prefs.getString('ledger_accounts') ?? '[]') as List;
-      final accounts = values
+      final loaded = values
           .map(
             (value) =>
                 LedgerAccount.fromJson(Map<String, dynamic>.from(value as Map)),
           )
           .map(
             (account) => switch (account.id) {
-              'cash' => account.copyWith(name: '現金付款'),
-              'bank' => account.copyWith(name: '銀行付款'),
+              'cash' => account.copyWith(name: '現金帳戶'),
               _ => account,
             },
           )
+          .where((account) => account.id != 'bank')
           .toList();
-      return accounts.isEmpty ? _accounts : accounts;
+      if (!loaded.any((account) => account.id == 'cash')) {
+        return [const LedgerAccount(id: 'cash', name: '現金帳戶'), ...loaded];
+      }
+      return loaded;
     } catch (_) {
       return _accounts;
     }
@@ -120,6 +124,22 @@ class _MainShellState extends State<MainShell> {
     }
   }
 
+  List<AccountTransfer> _readTransfers(SharedPreferences prefs) {
+    try {
+      final list =
+          jsonDecode(prefs.getString('account_transfers') ?? '[]') as List;
+      return list
+          .map(
+            (item) => AccountTransfer.fromJson(
+              Map<String, dynamic>.from(item as Map),
+            ),
+          )
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
   void _saveCategory(bool income, CategoryItem category) {
     setState(() {
       final list = income ? _incomeOrder : _expenseOrder;
@@ -173,6 +193,7 @@ class _MainShellState extends State<MainShell> {
       _records
         ..clear()
         ..addAll(_readRecords(preferences));
+      _transfers = _readTransfers(preferences);
       _hiddenExpenses = (preferences.getStringList('hidden_expenses') ?? [])
           .toSet();
       _hiddenIncome = (preferences.getStringList('hidden_income') ?? [])
@@ -216,6 +237,10 @@ class _MainShellState extends State<MainShell> {
     await preferences.setString(
       'transaction_records',
       jsonEncode(_records.map((record) => record.toJson()).toList()),
+    );
+    await preferences.setString(
+      'account_transfers',
+      jsonEncode(_transfers.map((transfer) => transfer.toJson()).toList()),
     );
   }
 
@@ -275,7 +300,11 @@ class _MainShellState extends State<MainShell> {
           AccountManagementPage(
             accounts: _accounts,
             records: _records,
+            transfers: _transfers,
             onSaved: _saveAccounts,
+            onTransferAdded: _addTransfer,
+            onTransferDeleted: _deleteTransfer,
+            onDeleteRecord: _deleteRecordByMatch,
             closeOnSave: false,
           ),
           IconSizeSettingsPage(
@@ -333,6 +362,24 @@ class _MainShellState extends State<MainShell> {
   }
 
   void _deleteRecord(int index) {
+    setState(() => _records.removeAt(index));
+    _savePreferences();
+  }
+
+  void _addTransfer(AccountTransfer transfer) {
+    setState(() => _transfers.add(transfer));
+    _savePreferences();
+  }
+
+  void _deleteTransfer(String id) {
+    setState(() => _transfers.removeWhere((transfer) => transfer.id == id));
+    _savePreferences();
+  }
+
+  // 依物件身分刪除單筆紀錄（供帳戶明細等過濾檢視使用）
+  void _deleteRecordByMatch(TransactionRecord target) {
+    final index = _records.indexWhere((record) => identical(record, target));
+    if (index < 0) return;
     setState(() => _records.removeAt(index));
     _savePreferences();
   }
