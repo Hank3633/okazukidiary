@@ -31,6 +31,46 @@ class AppLocalizationsJa extends AppLocalizations {
   String get settings => '設定';
 
   @override
+  String get dataBackupRestore => 'データのバックアップと復元';
+
+  @override
+  String get backupDescription => '口座、収支記録、カテゴリ、カスタムアイコンをバックアップファイルに保存します。';
+
+  @override
+  String get exportBackup => 'バックアップをエクスポート';
+
+  @override
+  String get exportBackupHint => '保存または共有できる JSON バックアップファイルを作成します。';
+
+  @override
+  String get restoreBackup => 'バックアップを復元';
+
+  @override
+  String get restoreBackupHint => 'バックアップファイルで現在の口座、記録、カテゴリを置き換えます。';
+
+  @override
+  String get backupExported => 'バックアップをエクスポートしました';
+
+  @override
+  String get backupFailed => 'バックアップをエクスポートできませんでした。もう一度お試しください。';
+
+  @override
+  String get restoreConfirmTitle => 'バックアップを復元しますか？';
+
+  @override
+  String get restoreConfirmMessage =>
+      '現在の口座、収支記録、カテゴリはバックアップファイルの内容に置き換わります。この操作は元に戻せません。';
+
+  @override
+  String get restore => '復元';
+
+  @override
+  String get restoreCompleted => 'バックアップを復元しました';
+
+  @override
+  String get restoreFailed => 'バックアップを復元できませんでした。ファイルが正しいか確認してください。';
+
+  @override
   String recordSaved(Object type, Object amount) {
     return '$typeを記録しました：$amount円';
   }

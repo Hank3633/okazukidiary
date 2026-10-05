@@ -31,6 +31,45 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settings => '設定';
 
   @override
+  String get dataBackupRestore => '資料備份與還原';
+
+  @override
+  String get backupDescription => '將帳戶、收支紀錄、分類與自訂圖示儲存為備份檔。';
+
+  @override
+  String get exportBackup => '匯出備份';
+
+  @override
+  String get exportBackupHint => '建立可保存或分享的 JSON 備份檔。';
+
+  @override
+  String get restoreBackup => '還原備份';
+
+  @override
+  String get restoreBackupHint => '從備份檔取代目前的帳戶、紀錄與分類資料。';
+
+  @override
+  String get backupExported => '備份檔已匯出';
+
+  @override
+  String get backupFailed => '無法匯出備份檔，請重試。';
+
+  @override
+  String get restoreConfirmTitle => '還原備份？';
+
+  @override
+  String get restoreConfirmMessage => '目前的帳戶、收支紀錄與分類資料將被備份檔取代，此操作無法復原。';
+
+  @override
+  String get restore => '還原';
+
+  @override
+  String get restoreCompleted => '備份已還原';
+
+  @override
+  String get restoreFailed => '無法還原備份檔，請確認檔案是否正確。';
+
+  @override
   String recordSaved(Object type, Object amount) {
     return '已記$type：$amount 元';
   }
@@ -220,6 +259,45 @@ class AppLocalizationsZhTw extends AppLocalizationsZh {
 
   @override
   String get settings => '設定';
+
+  @override
+  String get dataBackupRestore => '資料備份與還原';
+
+  @override
+  String get backupDescription => '將帳戶、收支紀錄、分類與自訂圖示儲存為備份檔。';
+
+  @override
+  String get exportBackup => '匯出備份';
+
+  @override
+  String get exportBackupHint => '建立可保存或分享的 JSON 備份檔。';
+
+  @override
+  String get restoreBackup => '還原備份';
+
+  @override
+  String get restoreBackupHint => '從備份檔取代目前的帳戶、紀錄與分類資料。';
+
+  @override
+  String get backupExported => '備份檔已匯出';
+
+  @override
+  String get backupFailed => '無法匯出備份檔，請重試。';
+
+  @override
+  String get restoreConfirmTitle => '還原備份？';
+
+  @override
+  String get restoreConfirmMessage => '目前的帳戶、收支紀錄與分類資料將被備份檔取代，此操作無法復原。';
+
+  @override
+  String get restore => '還原';
+
+  @override
+  String get restoreCompleted => '備份已還原';
+
+  @override
+  String get restoreFailed => '無法還原備份檔，請確認檔案是否正確。';
 
   @override
   String recordSaved(Object type, Object amount) {

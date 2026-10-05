@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'l10n/app_localizations.dart';
 
 import 'app_shell.dart';
+import 'pages/onboarding_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -43,17 +45,35 @@ class _LaunchScreen extends StatefulWidget {
 
 class _LaunchScreenState extends State<_LaunchScreen> {
   var _showHome = false;
+  var _showOnboarding = false;
 
   @override
   void initState() {
     super.initState();
-    Future<void>.delayed(const Duration(milliseconds: 1200), () {
-      if (mounted) setState(() => _showHome = true);
+    _startApp();
+  }
+
+  Future<void> _startApp() async {
+    await Future<void>.delayed(const Duration(milliseconds: 1200));
+    final preferences = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _showHome = true;
+      _showOnboarding = !(preferences.getBool('onboarding_completed') ?? false);
     });
+  }
+
+  Future<void> _completeOnboarding() async {
+    final preferences = await SharedPreferences.getInstance();
+    await preferences.setBool('onboarding_completed', true);
+    if (mounted) setState(() => _showOnboarding = false);
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_showOnboarding) {
+      return OnboardingPage(onCompleted: _completeOnboarding);
+    }
     if (_showHome) return const MainShell();
 
     final theme = Theme.of(context);

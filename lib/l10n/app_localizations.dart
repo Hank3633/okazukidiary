@@ -143,6 +143,84 @@ abstract class AppLocalizations {
   /// **'設定'**
   String get settings;
 
+  /// No description provided for @dataBackupRestore.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'資料備份與還原'**
+  String get dataBackupRestore;
+
+  /// No description provided for @backupDescription.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'將帳戶、收支紀錄、分類與自訂圖示儲存為備份檔。'**
+  String get backupDescription;
+
+  /// No description provided for @exportBackup.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'匯出備份'**
+  String get exportBackup;
+
+  /// No description provided for @exportBackupHint.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'建立可保存或分享的 JSON 備份檔。'**
+  String get exportBackupHint;
+
+  /// No description provided for @restoreBackup.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'還原備份'**
+  String get restoreBackup;
+
+  /// No description provided for @restoreBackupHint.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'從備份檔取代目前的帳戶、紀錄與分類資料。'**
+  String get restoreBackupHint;
+
+  /// No description provided for @backupExported.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'備份檔已匯出'**
+  String get backupExported;
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'無法匯出備份檔，請重試。'**
+  String get backupFailed;
+
+  /// No description provided for @restoreConfirmTitle.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'還原備份？'**
+  String get restoreConfirmTitle;
+
+  /// No description provided for @restoreConfirmMessage.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'目前的帳戶、收支紀錄與分類資料將被備份檔取代，此操作無法復原。'**
+  String get restoreConfirmMessage;
+
+  /// No description provided for @restore.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'還原'**
+  String get restore;
+
+  /// No description provided for @restoreCompleted.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'備份已還原'**
+  String get restoreCompleted;
+
+  /// No description provided for @restoreFailed.
+  ///
+  /// In zh_TW, this message translates to:
+  /// **'無法還原備份檔，請確認檔案是否正確。'**
+  String get restoreFailed;
+
   /// No description provided for @recordSaved.
   ///
   /// In zh_TW, this message translates to:

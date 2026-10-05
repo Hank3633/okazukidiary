@@ -31,6 +31,49 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
+  String get dataBackupRestore => 'Backup & Restore';
+
+  @override
+  String get backupDescription =>
+      'Save accounts, records, categories, and custom icons in a backup file.';
+
+  @override
+  String get exportBackup => 'Export Backup';
+
+  @override
+  String get exportBackupHint => 'Create a JSON backup file to save or share.';
+
+  @override
+  String get restoreBackup => 'Restore Backup';
+
+  @override
+  String get restoreBackupHint =>
+      'Replace current accounts, records, and categories from a backup file.';
+
+  @override
+  String get backupExported => 'Backup exported';
+
+  @override
+  String get backupFailed => 'Unable to export the backup. Please try again.';
+
+  @override
+  String get restoreConfirmTitle => 'Restore backup?';
+
+  @override
+  String get restoreConfirmMessage =>
+      'Your current accounts, records, and categories will be replaced. This cannot be undone.';
+
+  @override
+  String get restore => 'Restore';
+
+  @override
+  String get restoreCompleted => 'Backup restored';
+
+  @override
+  String get restoreFailed =>
+      'Unable to restore the backup. Check that the file is valid.';
+
+  @override
   String recordSaved(Object type, Object amount) {
     return '$type recorded: $amount';
   }

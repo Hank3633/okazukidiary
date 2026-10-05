@@ -15,6 +15,9 @@ void main() {
     await tester.pumpWidget(const MyApp());
     await tester.pumpAndSettle();
 
+    await tester.tap(find.text('略過'));
+    await tester.pumpAndSettle();
+
     expect(find.text('記帳'), findsWidgets);
 
     await tester.tap(find.text('收支統計'));
@@ -24,5 +27,10 @@ void main() {
     await tester.tap(find.text('圖標設定'));
     await tester.pumpAndSettle();
     expect(find.text('分類圖示尺寸'), findsOneWidget);
+
+    await tester.tap(find.text('設定').last);
+    await tester.pumpAndSettle();
+    expect(find.text('資料備份與還原'), findsOneWidget);
+    expect(find.text('匯出 Excel'), findsOneWidget);
   });
 }
