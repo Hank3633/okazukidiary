@@ -44,6 +44,8 @@ class _LaunchScreen extends StatefulWidget {
 }
 
 class _LaunchScreenState extends State<_LaunchScreen> {
+  static const _onboardingShownCountKey = 'onboarding_shown_count';
+  static const _onboardingShowLimit = 3;
   var _showHome = false;
   var _showOnboarding = false;
 
@@ -59,13 +61,19 @@ class _LaunchScreenState extends State<_LaunchScreen> {
     if (!mounted) return;
     setState(() {
       _showHome = true;
-      _showOnboarding = !(preferences.getBool('onboarding_completed') ?? false);
+      _showOnboarding =
+          (preferences.getInt(_onboardingShownCountKey) ?? 0) <
+          _onboardingShowLimit;
     });
   }
 
   Future<void> _completeOnboarding() async {
     final preferences = await SharedPreferences.getInstance();
-    await preferences.setBool('onboarding_completed', true);
+    final shownCount = preferences.getInt(_onboardingShownCountKey) ?? 0;
+    await preferences.setInt(
+      _onboardingShownCountKey,
+      shownCount < _onboardingShowLimit ? shownCount + 1 : _onboardingShowLimit,
+    );
     if (mounted) setState(() => _showOnboarding = false);
   }
 

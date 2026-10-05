@@ -15,19 +15,19 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   static const _steps = [
     (
-      icon: Icons.edit_note_rounded,
       title: '開始記帳',
-      message: '在「支出」或「收入」頁輸入金額，點選分類後即可記下一筆。',
+      message: '在銀行管理頁面，新增銀行帳戶與存款金額。',
+      navigationIndex: 3,
     ),
     (
-      icon: Icons.apps_rounded,
       title: '整理常用分類',
       message: '在「圖標設定」中調整顯示項目與順序，也能新增自己的分類。',
+      navigationIndex: 4,
     ),
     (
-      icon: Icons.insights_rounded,
       title: '掌握收支狀況',
-      message: '用「收支統計」查看花費；重要資料可在「設定」備份或匯出 Excel。',
+      message: '用「收支統計」可以查看或編輯花費；重要資料可在「設定」備份或匯出 Excel。',
+      navigationIndex: 2,
     ),
   ];
 
@@ -65,16 +65,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 132,
-                          height: 132,
-                          decoration: const BoxDecoration(
-                            color: Color(0xFFE0F2F1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(step.icon, size: 72, color: const Color(0xFF168B72)),
-                        ),
-                        const SizedBox(height: 36),
+                        _NavigationPreview(highlightIndex: step.navigationIndex),
+                        const SizedBox(height: 44),
                         Text(
                           step.title,
                           style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -126,6 +118,91 @@ class _OnboardingPageState extends State<OnboardingPage> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _NavigationPreview extends StatelessWidget {
+  const _NavigationPreview({required this.highlightIndex});
+
+  final int highlightIndex;
+
+  static const _items = [
+    (icon: Icons.book, label: '支出'),
+    (icon: Icons.savings, label: '收入'),
+    (icon: Icons.bar_chart, label: '收支統計'),
+    (icon: Icons.account_balance, label: '銀行管理'),
+    (icon: Icons.apps, label: '圖標設定'),
+    (icon: Icons.settings, label: '設定'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 88,
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: const [
+          BoxShadow(color: Color(0x1A000000), blurRadius: 10, offset: Offset(0, 3)),
+        ],
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final itemWidth = constraints.maxWidth / _items.length;
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              Row(
+                children: [
+                  for (var index = 0; index < _items.length; index++)
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _items[index].icon,
+                            size: 23,
+                            color: index == highlightIndex
+                                ? const Color(0xFF26C6A0)
+                                : Colors.grey,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _items[index].label,
+                            maxLines: 1,
+                            overflow: TextOverflow.clip,
+                            style: TextStyle(
+                              color: index == highlightIndex
+                                  ? const Color(0xFF168B72)
+                                  : Colors.grey,
+                              fontSize: 10,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+              Positioned(
+                left: itemWidth * highlightIndex + (itemWidth - 52) / 2,
+                top: -4,
+                child: IgnorePointer(
+                  child: Container(
+                    width: 52,
+                    height: 72,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.red, width: 2.5),
+                      borderRadius: BorderRadius.circular(50),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
