@@ -26,12 +26,20 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   static const _defaultExpenseLabels = {
     '餐點',
+    '飲料',
     '住宿',
     '交通',
     '衣服',
+    '雑貨',
+    '餐廳',
     '電費',
+    '電話費',
+    '加油費',
     '娛樂',
+    '美容',
+    '教育',
     '醫療',
+    '禮金',
     '其他',
   };
   static const _defaultIncomeLabels = {

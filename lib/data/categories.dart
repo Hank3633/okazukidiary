@@ -53,4 +53,8 @@ const expenseCategories = [
   CategoryItem('assets/images/categories/33.png', '稅金', Color(0xFFFFB74D)),
   CategoryItem('assets/images/categories/34.png', '罰款', Color(0xFFEF5350)),
   CategoryItem('assets/images/categories/35.png', '菸酒', Color(0xFF8D6E63)),
+  CategoryItem('assets/images/categories/36.png', '早餐', Color(0xFFFFCC80)),
+  CategoryItem('assets/images/categories/37.png', '午餐', Color(0xFFFF8A65)),
+  CategoryItem('assets/images/categories/38.png', '晚餐', Color(0xFF9575CD)),
+  CategoryItem('assets/images/categories/39.png', '娛樂', Color(0xFFF06292)),
 ];
